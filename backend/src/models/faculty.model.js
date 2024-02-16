@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { hashPassword, comparePassword } from '../utils/passwordEncryption.js';
-import { hash } from 'bcrypt';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwtGeneration.js';
 
 const facultySchema = mongoose.Schema(
     {
@@ -69,6 +69,15 @@ facultySchema.pre("save", passwordEncryption);
 //method for comparing password
 facultySchema.methods.isPasswordCorrect = async function(textPassword) {
     return await comparePassword(textPassword, this.password);
+}
+
+//generating access and refresh tokens
+facultySchema.methods.generateAccessTokens = function() {
+    return generateAccessToken(this);
+}
+
+facultySchema.methods.generateRefreshToken = function () {
+    return generateRefreshToken(this);
 }
 
 export const Faculty = mongoose.model("Faculty", facultySchema);
