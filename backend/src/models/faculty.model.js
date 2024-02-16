@@ -44,7 +44,10 @@ const facultySchema = mongoose.Schema(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Event"
             }
-        ]
+        ],
+        refreshToken: {
+            type: String
+        }
     },
     {timestamps: true}
 );

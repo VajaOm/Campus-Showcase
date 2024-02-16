@@ -53,7 +53,10 @@ const studentSchema = mongoose.Schema(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "event"
             }
-        ]
+        ],
+        refreshToken: {
+            type: String
+        }
     }, 
     {timestamps : true}
     
