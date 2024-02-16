@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import { hashPassword, comparePassword } from '../utils/passwordEncryption.js';
+import { hash } from 'bcrypt';
 
 const facultySchema = mongoose.Schema(
     {
@@ -51,5 +53,22 @@ const facultySchema = mongoose.Schema(
     },
     {timestamps: true}
 );
+
+const passwordEncryption = async function(next) {
+    if(this.isModified("password")) {
+        this.password = await hashPassword(this.password);
+        next();
+    }
+    else{
+        next();
+    }
+}
+
+facultySchema.pre("save", passwordEncryption);
+
+//method for comparing password
+facultySchema.methods.isPasswordCorrect = async function(textPassword) {
+    return await comparePassword(textPassword, this.password);
+}
 
 export const Faculty = mongoose.model("Faculty", facultySchema);

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { hashPassword, comparePassword } from "../utils/passwordEncryption.js";
 
 const studentSchema = mongoose.Schema(
     {
@@ -61,5 +62,23 @@ const studentSchema = mongoose.Schema(
     {timestamps : true}
     
     );
+
+    const passwordEncryption = async function(next) {
+        if(this.isModified("password")) {
+            this.password = await hashPassword(this.password);
+            next();
+        }
+        else{
+            next();
+        }
+    };
+
+    studentSchema.pre("save", passwordEncryption);
+
+    //method for comparing password
+    studentSchema.method.isPasswordCorrect = async function(textPassword) {
+        return await comparePassword(textPassword, this.password);
+    }
+
 
 export const Student = mongoose.model("Student", studentSchema);
