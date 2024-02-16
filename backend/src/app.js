@@ -11,4 +11,13 @@ const configurationCors = {
 
 app.use(cors(configurationCors));
 
+//to get the data as json formate
+app.use(express.json(  {limit : '16kb'}  ));
+
+//to get data from url 
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+
+// to store files in the public folder such as pdf, photos, etc.
+app.use(express.static("public"));
+
 export {app};
