@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { hashPassword, comparePassword } from "../utils/passwordEncryption.js";
+import { generateAccessToken, generateRefreshToken } from '../utils/jwtGeneration.js';
 
 const studentSchema = mongoose.Schema(
     {
@@ -76,8 +77,17 @@ const studentSchema = mongoose.Schema(
     studentSchema.pre("save", passwordEncryption);
 
     //method for comparing password
-    studentSchema.method.isPasswordCorrect = async function(textPassword) {
+    studentSchema.methods.isPasswordCorrect = async function(textPassword) {
         return await comparePassword(textPassword, this.password);
+    }
+
+    //generating access and refresh tokens
+    studentSchema.methods.generateAccessTokens = function() {
+        return generateAccessToken(this);
+    }
+
+    studentSchema.methods.generateRefreshToken = function () {
+        return generateRefreshToken(this);
     }
 
 
