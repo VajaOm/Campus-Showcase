@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import image from '../assets/registration_pattern.png';
 import regImage from '../assets/registration_img_2.png';
 import ParticlesBg from './ParticlesBg';
@@ -9,6 +9,13 @@ import * as Yup from 'yup';
 
 import Login from './Login';
 
+// const reducer = (passwordErrors, action) => {
+//   switch(action.type) {
+//     case "LowercaseValidation": 
+//     return {lowerValidate : true}
+//     default: return passwordErrors;
+//   }
+// }
 
 export default function Registration() {
 
@@ -20,6 +27,10 @@ export default function Registration() {
     password: "",
     confirmpassword: ""
   });
+  const [errors, setErrors] = useState({});
+
+  // const [passwordErrors, dispatch] = useReducer(reducer, {lowerValidate : false, upperValidate: false,
+  // numberValidate: false, specialValidate: false, lengthValidate: false });
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
@@ -33,15 +44,44 @@ export default function Registration() {
     setPasswordVisible(!passwordVisible);
   });
 
-  const onSubmitHandler = (e) => {
+
+  // validation schema for yup
+  const validationSchema = Yup.object({
+    fullname: Yup.string().required("Full name is required"),
+    email: Yup.string().required("Email id is required").email("Invalid email format"),
+    role: Yup.string().required("Role is required"),
+    password: Yup.string().required("Password is required")
+      .min(6, "password must be 6 character or long")
+      .matches(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Password must contain at least one symbol"
+      )
+      .matches(/[0-9]/, "Password must contain at least one number")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/[a-z]/, "Password must contain at least one lowercase letter"),
+    confirmpassword: Yup.string().required("Confirm password is required").oneOf([Yup.ref("password")], "Confirm password and password must match")
+  });
+
+ 
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     console.log(formData)
+
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      console.log("Form submitted");
+    } catch (error) {
+      const newErrors = {};
+      error.inner.forEach((err) => {
+        
+        newErrors[err.path] = err.message;
+      });
+      
+
+      setErrors(newErrors);
+    }
   }
 
-  //validation schema for yup
-  // const validationSchema = Yup.object({
-
-  // });
 
   return (<>
 
@@ -51,23 +91,25 @@ export default function Registration() {
       </div>
       <div className='w-full lg:relative '>
         <form action="" onSubmit={onSubmitHandler} className='grid grid-cols-1 sm:mx-8 sm:my-8 m-5 ' >
-          <h1 className='lg:text-4xl text-3xl sm:text-4xl lg:text-left mb-5 text-center lg:mb-5 2xl:mt-8'>Registration</h1>
-          <label htmlFor="fullname" className='text-left text-md sm:text-lg mt-5 lg:mt-2 '>Name</label>
+          <h1 className='lg:text-4xl text-3xl sm:text-4xl lg:text-left mb-5 text-center lg:mb-3 2xl:mt-5'>Registration</h1>
+          <label htmlFor="fullname" className='text-left text-md sm:text-lg mt-5 lg:mt-0'>Name</label>
           <input type="text" name='fullname' id='fullname' autoComplete='fullname' className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='Enter your full name' value={formData.fullname} onChange={onChangeHandler} />
+          {errors.fullname && <div className='text-red-500 text-sm sm:text-md'>{errors.fullname}</div>}
           <br />
 
-          <label htmlFor="email" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8'>Email</label>
+          <label htmlFor="email" className='text-left text-md mt-3 sm:text-lg lg:-mt-2 2xl:mt-5'>Email</label>
           <input type="text" name='email' id='email' autoComplete='email' className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='example@gmail.com' value={formData.email} onChange={onChangeHandler} />
+          {errors.email && <div className='text-red-500 text-sm sm:text-md'>{errors.email}</div>}
           <br />
 
-          <label htmlFor="role" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8'>Role</label>
+          <label htmlFor="role" className='text-left text-md mt-3 sm:text-lg lg:-mt-2 2xl:mt-5'>Role</label>
           <select name="role" id="role" className='rounded-md p-2 w-2/4 focus:outline-none text-black 2xl:mt-2' autoComplete='role' onChange={onChangeHandler}>
             <option value="Student">Student</option>
             <option value="Faculty">Faculty</option>
           </select>
           <br />
 
-          <label htmlFor="password" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8' >Password</label>
+          <label htmlFor="password" className='text-left text-md mt-3 sm:text-lg lg:-mt-2 2xl:mt-5' >Password</label>
           <div className='flex bg-white lg:w-3/4 rounded-md items-center'>
 
             <input type={passwordVisible ? "text" : "password"} name='password' autoComplete='current-password' id='password' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********'
@@ -77,11 +119,10 @@ export default function Registration() {
             </div>
 
           </div>
-
-
+          {errors.password && <div className='text-red-500 text-sm sm:text-md'>{errors.password}</div>}
           <br />
 
-          <label htmlFor="confirmPassword" className='text-left text-md sm:text-lg mt-5 lg:mt-0 2xl:mt-8'>Confirm password</label>
+          <label htmlFor="confirmPassword" className='text-left text-md sm:text-lg mt-3 lg:-mt-2 2xl:mt-5'>Confirm password</label>
           <div className='flex bg-white lg:w-3/4 rounded-md items-center'>
 
             <input type={passwordVisible ? "text" : "password"} name='confirmpassword' autoComplete='new-password' id='confirmPassword' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********'
@@ -91,10 +132,11 @@ export default function Registration() {
             </div>
 
           </div>
+          {errors.confirmpassword && <div className='text-red-500 text-sm sm:text-md'>{errors.confirmpassword}</div>}
           <br />
 
           <button className='bg-[#9290C3] text-black font-semibold lg:w-1/6 w-2/5 px-4 lg:py-2 py-3 rounded-md hover:bg-[#535C91] hover:scale-105 transition duration-500 lg:mt-0 mt-2 mb-0 2xl:mt-5'>Register</button>
-          <Link to="/" className='lg:mt-4 mt-10'>Already have an account? <span className=' text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block  2xl:mt-8 '>Log in.</span> </Link>
+          <Link to="/" className='lg:mt-4 mt-10'>Already have an account? <span className=' text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block  2xl:mt-5 '>Log in.</span> </Link>
         </form>
         <ParticlesBg className='absolute top-0 left-0 w-full h-full' />
       </div>
