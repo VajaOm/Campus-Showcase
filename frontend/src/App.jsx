@@ -1,10 +1,22 @@
 import './App.css'
+import Login from './components/Login';
+import PageNotFound from './components/PageNotFound';
+import Registration from './components/Registration';
+import { Routes, Route } from 'react-router-dom';
+
 
 function App() {
 
   return (
     <>
-      <h1>Campus showcase</h1>
+      <Routes>
+
+        <Route path='/' element={ <Login />} />
+        <Route path='/registration' element={<Registration />} />
+<Route path='/resetpassword'  element={<PageNotFound />}/>
+      </Routes>
+       
+     
     </>
   )
 }
