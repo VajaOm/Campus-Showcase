@@ -1,12 +1,22 @@
-import React from 'react';
+import React, {useState} from 'react';
 import image from '../assets/registration_pattern.png';
 import regImage from '../assets/registration_img_2.png';
 import ParticlesBg from './ParticlesBg';
 import { Link } from 'react-router-dom';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
 import Login from './Login';
 
 
 export default function Registration() {
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = ((prevState) => {
+    setPasswordVisible(!passwordVisible);
+  });
+
   return (<>
 
     <div className='relative grid lg:grid-cols-2 grid-cols-1 gap-4 w-screen h-screen overflow-hidden z-0'>
@@ -17,11 +27,11 @@ export default function Registration() {
         <form action="" className='grid grid-cols-1 sm:mx-8 sm:my-8 m-5 ' >
           <h1 className='lg:text-4xl text-3xl sm:text-4xl lg:text-left mb-5 text-center lg:mb-5 2xl:mt-8'>Registration</h1>
           <label htmlFor="name" className='text-left text-md sm:text-lg mt-5 lg:mt-2 '>Name</label>
-          <input type="text" className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='Enter your full name' />
+          <input type="text" name='fullname' className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='Enter your full name' />
           <br />
 
           <label htmlFor="email" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8'>Email</label>
-          <input type="text" className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='example@gmail.com' />
+          <input type="text" name='email' className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='example@gmail.com' />
           <br />
 
           <label htmlFor="name" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8'>Role</label>
@@ -33,11 +43,27 @@ export default function Registration() {
           <br />
 
           <label htmlFor="password" className='text-left text-md mt-5 sm:text-lg lg:mt-0 2xl:mt-8'>Password</label>
-          <input type="password" className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='********' />
+          <div className='flex bg-white lg:w-3/4 rounded-md items-center'>
+
+          <input type={passwordVisible ? "text" : "password"} name='password' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********' />
+          <div className='cursor-pointer' onClick={togglePasswordVisibility}>
+          {passwordVisible ? <VisibilityOffIcon fontSize='large' color='action' /> : <VisibilityIcon fontSize='large' color='action' />}
+          </div>
+          
+          </div>
+          
+          
           <br />
 
           <label htmlFor="confirmPassword" className='text-left text-md sm:text-lg mt-5 lg:mt-0 2xl:mt-8'>Confirm password</label>
-          <input type="password" className='rounded-md p-2 lg:w-3/4 w-100 focus:outline-none text-black 2xl:mt-2' placeholder='********' />
+          <div className='flex bg-white lg:w-3/4 rounded-md items-center'>
+
+          <input type={passwordVisible ? "text" : "password"} name='confirmpassword' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********' />
+          <div className='cursor-pointer' onClick={togglePasswordVisibility}>
+          {passwordVisible ? <VisibilityOffIcon fontSize='large' color='action' /> : <VisibilityIcon fontSize='large' color='action' />}
+          </div>
+          
+          </div>
           <br />
 
           <button className='bg-[#9290C3] text-black font-semibold lg:w-1/6 w-2/5 px-4 lg:py-2 py-3 rounded-md hover:bg-[#535C91] hover:scale-105 transition duration-500 lg:mt-0 mt-2 mb-0 2xl:mt-5'>Register</button>
