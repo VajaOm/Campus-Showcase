@@ -10,62 +10,81 @@ import Registration from './Registration';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import * as Yup from 'yup';
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-
+    const navigate = useNavigate();
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [formData, setFormData] = useState({
         emailorusername: "",
         role: "Student",
         password: "",
-      });
+    });
     const [errors, setErrors] = useState({});
+    const [userAlreadyExisted, setUserAlreadyExisted] = useState("");
+
 
     const validationSchema = Yup.object({
         emailorusername: Yup.string().required("Email or username is required"),
         role: Yup.string().required("Role is required"),
         password: Yup.string().required("Password is required")
-          .min(6, "password must be 6 character or long")
-          .matches(
-            /[!@#$%^&*(),.?":{}|<>]/,
-            "Password must contain at least one symbol"
-          )
-          .matches(/[0-9]/, "Password must contain at least one number")
-          .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-          .matches(/[a-z]/, "Password must contain at least one lowercase letter"),
-       
-      });
+    });
 
     const togglePasswordVisibility = ((prevState) => {
         setPasswordVisible(!passwordVisible);
     });
-    
-      const onChangeHandler= (e) => {
-        const {name,value} = e.target;
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value
-        }))
-      }
 
-      const onSubmitHandler = async (e) => {
+    const onChangeHandler = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
+
+    const onSubmitHandler = async (e) => {
         e.preventDefault();
         console.log(formData)
 
         try {
             await validationSchema.validate(formData, { abortEarly: false });
             console.log("Form submitted");
-          } catch (error) {
+
+            try {
+                const response = await axios.post("http://localhost:5000/user/login", formData, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    }
+                });
+
+                if (response.status === 201) {
+                    console.log(response.data.message);
+                    setUserAlreadyExisted("");
+                    navigate("/profile");
+                }
+            } catch (error) {
+                console.log("Error in registering user :: ", error.response.data.message);
+                setUserAlreadyExisted(error.response.data.message)
+            }
+
+        } catch (error) {
+            console.log(error)
             const newErrors = {};
-            error.inner.forEach((err) => {
-              newErrors[err.path] = err.message;
-            });
-            
-      
+
+            if (error) {
+                error.inner?.forEach((err) => {
+                    newErrors[err.path] = err.message;
+                });
+            }
+            // console.log(error?.inner)
+
+
+
             setErrors(newErrors);
-          }
-      }
-    
+        }
+    }
+
 
 
     return (
@@ -83,12 +102,12 @@ const Login = () => {
                     <form action="" onSubmit={onSubmitHandler} className='grid grid-cols-1 h-full' >
                         <h1 className='text-5xl 2xl:mt-10 mt-10 lg:mt-4 text-center lg:text-left '>Log in</h1>
                         <label htmlFor="emailorusername" className='2xl:mt-10 mt-10 lg:mt-3 sm:text-lg text-md '>Email or username</label>
-                        <input type="text" id='emailorusername' name='emailorusername' className='mt-2 p-3 rounded-lg focus:outline-none  text-black sm:w-full' placeholder='Enter your email or username' onChange={onChangeHandler}/>
+                        <input type="text" id='emailorusername' name='emailorusername' className='mt-2 p-3 rounded-lg focus:outline-none  text-black sm:w-full' placeholder='Enter your email or username' onChange={onChangeHandler} />
                         {errors.emailorusername && <div className='text-red-500'>{errors.emailorusername}</div>}
                         <br />
 
                         <label htmlFor="role" className='2xl:mt-5 mt-5 sm:text-lg text-md lg:-mt-3 '>Role</label>
-                        <select name="role" id="role" className=' mt-2 rounded-md p-2 w-2/5 focus:outline-none text-black 2xl:mt-2'>
+                        <select name="role" id="role" className=' mt-2 rounded-md p-2 w-2/5 focus:outline-none text-black 2xl:mt-2' onChange={onChangeHandler}>
                             <option value="Student">Student</option>
                             <option value="Faculty">Faculty</option>
                         </select>
@@ -97,7 +116,7 @@ const Login = () => {
                         <label htmlFor="password" className='2xl:mt-5 sm:text-lg text-md mt-5 lg:-mt-3 '>Password</label>
                         <div className='flex bg-white lg:w-full rounded-md items-center'>
 
-                            <input type={passwordVisible ? "text" : "password"} id='password' name='password' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********' onChange={onChangeHandler}/>
+                            <input type={passwordVisible ? "text" : "password"} id='password' name='password' className=' rounded-md p-2 lg:w-11/12 w-11/12 focus:outline-none text-black 2xl:mt-2' placeholder='********' onChange={onChangeHandler} />
                             <div className='cursor-pointer' onClick={togglePasswordVisibility}>
                                 {passwordVisible ? <VisibilityOffIcon fontSize='large' color='action' /> : <VisibilityIcon fontSize='large' color='action' />}
                             </div>
@@ -113,6 +132,7 @@ const Login = () => {
                         </div>
                         <Link to="/registration" className='mt-5 lg:block hidden  '>Don't have an account? <span className='text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block'>Sign up.</span></Link>
                     </form>
+                    <div className='text-red-500 text-lg w-full mt-5'>{userAlreadyExisted}</div>
                     <Link to="/registration" element={<Registration />}><button className='bg-[#070F2B] lg:hidden w-full text-white border-2 border-[#9290C3] rounded-lg p-2 sm:p-4
                      mt-16 hover:bg-[#9290C3] hover:text-black hover:font-semibold tansform duration-300'>Create new account</button></Link>
 

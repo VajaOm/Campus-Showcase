@@ -7,6 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import * as Yup from 'yup';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 import Login from './Login';
 
@@ -19,6 +20,8 @@ import Login from './Login';
 // }
 
 export default function Registration() {
+
+  const navigate = useNavigate();
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -89,6 +92,7 @@ export default function Registration() {
         if (response.status === 201) {
           console.log(response.data.message);
             console.log("Registration successful");
+            navigate('/')
             setUserAlreadyExisted("");
         }
     } catch (error) {

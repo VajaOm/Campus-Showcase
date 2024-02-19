@@ -6,6 +6,8 @@ const hashPassword = async (password) => {
 
 //method for comparing password
 const comparePassword = async (plainPassword, hashedPassword) => {
+    // console.log("Hash password :: ",hashedPassword)
+    // console.log("Plain Password  ::",plain)
     return await bcrypt.compare(plainPassword, hashedPassword);
 }
 

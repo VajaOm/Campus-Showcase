@@ -85,31 +85,40 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
 
 const loginUser = asyncHandler(async (req, res) => {
 
-    var user;
-    const { email, username, role, password } = req.body;
+    var user,email, username;
+    const { emailorusername, role, password } = req.body;
 
-    if (!email && !username) {
-        throw new ApiError(400, "Username or email is required");
+    if(emailorusername.includes("@gmail.com")) {
+        email = emailorusername;
+    }
+    else{
+        username = emailorusername;
     }
 
-    if (!password) {
-        throw new ApiError(400, "Password is required");
-    }
+    console.log("Email :: ",email);
+    console.log("username :: ",username)
+    console.log("Role :: ",role )
 
     if (role === "Student") {
-        user = await Student.findOne({
-            $or: [{ username }, { email }]
-        });
+        if (emailorusername.includes("@gmail.com")) {
+            user = await Student.findOne({ email: emailorusername });
+        } else {
+            user = await Student.findOne({ username: emailorusername });
+        }
     }
 
-    if (role === "Faculty") {
-        user = await Faculty.findOne({
-            $or: [{ username }, { email }]
-        });
+     if (role === "Faculty") {
+        if (emailorusername.includes("@gmail.com")) {
+            user = await Faculty.findOne({ email: emailorusername });
+        } else {
+            user = await Faculty.findOne({ username: emailorusername });
+        }
     }
+
+    console.log(user)
 
     if (!user) {
-        throw new ApiError(404, "User does not exists.");
+        throw new ApiError(404, "Account not found. If you haven't registered yet, please sign up.");
     }
 
     const isPasswordMatch = await user.isPasswordCorrect(password);
@@ -130,10 +139,10 @@ const loginUser = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(200,
+            "User is logged in",
             {
                 user
-            },
-            "User is logged in"
+            }
             )
         )
 });
