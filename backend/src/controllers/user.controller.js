@@ -1,3 +1,4 @@
+//user.controller.js
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
@@ -6,39 +7,52 @@ import { Faculty } from '../models/faculty.model.js';
 
 const registerUser = asyncHandler(async (req, res) => {
     let createdUser;
-    const { fullName, email, role, password, confirmPassword } = req.body;
+    const { fullName, email, role, password } = req.body;
 
-    if (password != confirmPassword) {
-        throw new ApiError(400, "Password and confirm password not matched");
-    }
+     
 
     if (role === "Student") {
+
+        const existedUser = await Student.findOne({email});
+
+        if(existedUser) {
+            throw new ApiError(409,"Account exists! If you already registered, please log in.");
+        }
+
         const user = await Student.create({
             fullName,
             email,
             password
         });
+        console.log(user)
         createdUser = await Student.findById(user._id);
         console.log("Student : ", createdUser)
     }
 
     if (role === "Faculty") {
+
+        const existedUser = await Faculty.findOne({email});
+
+        if(existedUser) {
+            throw new ApiError(409,"User already exists");
+        }
+
         const user = await Faculty.create({
             fullName,
             email,
             password
         });
+        console.log(user)
         createdUser = await Faculty.findById(user._id);
     }
     console.log(createdUser)
     if (!createdUser) {
-        throw new ApiError(500, "Something wrong happening while user registration");
+        throw new ApiError(404, "Something wrong happening while user registration");
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
+        new ApiResponse(200, "User registered successfully",createdUser)
     )
-
 });
 
 const generateAccessAndRefreshTokens = async (userID, role) => {
