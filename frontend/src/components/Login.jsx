@@ -55,7 +55,11 @@ const Login = () => {
                 const response = await axios.post("http://localhost:5000/user/login", formData, {
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
-                    }
+                    },
+
+                    //this should be add otherwise 
+                    //! cookie is seen in the browser network but not in the application storage cookie section
+                    withCredentials: true,  
                 });
 
                 if (response.status === 201) {
@@ -69,7 +73,7 @@ const Login = () => {
             }
 
         } catch (error) {
-            console.log(error)
+           
             const newErrors = {};
 
             if (error) {

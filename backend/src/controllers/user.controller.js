@@ -9,14 +9,14 @@ const registerUser = asyncHandler(async (req, res) => {
     let createdUser;
     const { fullName, email, role, password } = req.body;
 
-     
+
 
     if (role === "Student") {
 
-        const existedUser = await Student.findOne({email});
+        const existedUser = await Student.findOne({ email });
 
-        if(existedUser) {
-            throw new ApiError(409,"Account exists! If you already registered, please log in.");
+        if (existedUser) {
+            throw new ApiError(409, "Account exists! If you already registered, please log in.");
         }
 
         const user = await Student.create({
@@ -31,10 +31,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (role === "Faculty") {
 
-        const existedUser = await Faculty.findOne({email});
+        const existedUser = await Faculty.findOne({ email });
 
-        if(existedUser) {
-            throw new ApiError(409,"User already exists");
+        if (existedUser) {
+            throw new ApiError(409, "User already exists");
         }
 
         const user = await Faculty.create({
@@ -51,7 +51,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, "User registered successfully",createdUser)
+        new ApiResponse(200, "User registered successfully", createdUser)
     )
 });
 
@@ -66,15 +66,14 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
             user = await Faculty.findById(userID);
         }
 
-        const accessToken = await user.generateAccessTokens();
-        const refreshToken = await user.generateRefreshToken();
+        const accessToken = await user.generateAccessTokens(user,role);
+        const refreshToken = await user.generateRefreshToken(user,role);
 
         //adding refreshToken into the db
         user.refreshToken = refreshToken;
 
         await user.save({ validateBeforeSave: false });
 
-       
 
         return { accessToken, refreshToken };
 
@@ -85,19 +84,19 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
 
 const loginUser = asyncHandler(async (req, res) => {
 
-    var user,email, username;
+    var user, email, username;
     const { emailorusername, role, password } = req.body;
 
-    if(emailorusername.includes("@gmail.com")) {
+    if (emailorusername.includes("@gmail.com")) {
         email = emailorusername;
     }
-    else{
+    else {
         username = emailorusername;
     }
 
-    console.log("Email :: ",email);
-    console.log("username :: ",username)
-    console.log("Role :: ",role )
+    console.log("Email :: ", email);
+    console.log("username :: ", username)
+    console.log("Role :: ", role)
 
     if (role === "Student") {
         if (emailorusername.includes("@gmail.com")) {
@@ -107,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
         }
     }
 
-     if (role === "Faculty") {
+    if (role === "Faculty") {
         if (emailorusername.includes("@gmail.com")) {
             user = await Faculty.findOne({ email: emailorusername });
         } else {
@@ -130,19 +129,22 @@ const loginUser = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id, role);
 
     const options = {
-        httponly: true,
-        secure: true
+        httpOnly: true,
+        secure: true,
+        path: '/',
+        sameSite: 'None'
     };
 
+
     return res.status(201)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(200,
-            "User is logged in",
-            {
-                user
-            }
+                "User is logged in",
+                {
+                    user,
+                }
             )
         )
 });

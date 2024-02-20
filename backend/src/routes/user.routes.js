@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import { registerUser, loginUser } from '../controllers/user.controller.js';
+import { veriJwt } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

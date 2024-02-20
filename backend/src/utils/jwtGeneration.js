@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 
-const generateAccessToken = function (user) {
+const generateAccessToken = function (user,role) {
     return jwt.sign(
         {
             _id: user._id,
             fullName: user.fullName,
-            email: user.email
+            email: user.email,
+            role:role
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -14,10 +15,11 @@ const generateAccessToken = function (user) {
     )
 };
 
-const generateRefreshToken = function (user) {
+const generateRefreshToken = function (user, role) {
     return jwt.sign(
         {
             _id: user._id,
+            role:role
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
