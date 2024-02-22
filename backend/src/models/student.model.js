@@ -14,7 +14,6 @@ const studentSchema = mongoose.Schema(
         username: {
             type: String,
             lowercase: true,
-            unique: true,
             trim: true,
           
         },
@@ -24,12 +23,8 @@ const studentSchema = mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
             lowercase: true,
             trim: true
-        },
-        deparment: {
-            type: String
         },
         year: {
             type: Number
@@ -58,6 +53,10 @@ const studentSchema = mongoose.Schema(
         ],
         refreshToken: {
             type: String
+        },
+        firstTime: {
+            type: Boolean,
+            default: true
         },
         isVerified : {
             type: Boolean,

@@ -66,8 +66,8 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
             user = await Faculty.findById(userID);
         }
 
-        const accessToken = await user.generateAccessTokens(user,role);
-        const refreshToken = await user.generateRefreshToken(user,role);
+        const accessToken = await user.generateAccessTokens(user, role);
+        const refreshToken = await user.generateRefreshToken(user, role);
 
         //adding refreshToken into the db
         user.refreshToken = refreshToken;
@@ -114,12 +114,14 @@ const loginUser = asyncHandler(async (req, res) => {
         }
     }
 
-    console.log(user)
+    // console.log(user)
 
     if (!user) {
         throw new ApiError(404, "Account not found. If you haven't registered yet, please sign up.");
     }
 
+    //if user if first time login then redirect him to the profile page by default
+    
     const isPasswordMatch = await user.isPasswordCorrect(password);
 
     if (!isPasswordMatch) {
@@ -136,17 +138,64 @@ const loginUser = asyncHandler(async (req, res) => {
     };
 
 
-    return res.status(201)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    if (role === "Faculty" && user.firstTime) {
+        console.log("first time faculty fun");
+        await Faculty.updateOne({ email: user.email }, { $set: { firstLogin: false } });
+
+        return res.status(201)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
-            new ApiResponse(200,
+            new ApiResponse(201,
+                "User is logged in",
+                {
+                    user,
+                    redirectTo: "/profile" 
+                }
+            )
+        )
+        
+    } else if (role === "Student" && user.firstTime) {
+        console.log("first time student fun");
+        const x = await Student.updateOne({ email: user.email }, { $set: { firstTime: false } });
+        console.log("updated data :: ",x);
+        await user.save({ validateBeforeSave: false });
+
+        if (emailorusername.includes("@gmail.com")) {
+            user = await Student.findOne({ email: emailorusername });
+        } else {
+            user = await Student.findOne({ username: emailorusername });
+        }
+
+        console.log(user)
+        
+        return res.status(201)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(201,
+                "User is logged in",
+                {
+                    user,
+                    redirectTo: "/profile" 
+                }
+            )
+        )
+    }
+
+    return res.status(201)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(201,
                 "User is logged in",
                 {
                     user,
                 }
             )
         )
+
+    
 });
 
 export { registerUser, loginUser }

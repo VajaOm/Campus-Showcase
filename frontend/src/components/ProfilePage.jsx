@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import sideImg from '../assets/profile_side_img.png';
 import ParticlesBg from './ParticlesBg';
@@ -18,10 +18,10 @@ const ProfilePage = () => {
 
     const [isGeneralInfo, setIsGeneralInfo] = useState(true);
     const [isSubmiting, setIsSubmiting] = useState(false);
-    const [dialogBox, setDialogBox] = useState(false);
-    const [imgCrop, setImgCrop] = useState(false);
     const inputRef = useRef(null);
     const [img, setImg] = useState("")
+
+    const [userData, setUserData] = useState({});
 
     //issue handling releted to same id 
     const formIdPrefixFirstForm = "firstForm";
@@ -50,7 +50,7 @@ const ProfilePage = () => {
                 department: "Information Technology",
                 year: "",
                 semester: ""
-            }
+            },
         },
         validationSchema: Yup.object({
             ProfileGeneralForm: Yup.object({
@@ -95,39 +95,21 @@ const ProfilePage = () => {
             })
         }),
         onSubmit: (values) => {
-            console.log(values);
+            setUserData({ ...values, img })
         }
     })
 
+    useEffect(() => {
+        console.log("form data ::: ", userData);
+    }, [userData]);
+
+
+    //add btn handler
     const handleAddButtonClick = () => {
-        setIsSubmiting(true)
-        // formik.validateForm().then(() => {
-        //     if (Object.keys(formik.errors).length === 0) {
-        //         // Validation successful, perform your desired action (e.g., submit the form)
-        //         formik.handleSubmit();
-        //     }
-        // });
+        setIsSubmiting(true);
     };
 
-    const avatarClickHandler = () => {
-        console.log("dialog box")
-        setDialogBox(true);
-    }
-
-    const onCrop = (view) => {
-        setImgCrop(view)
-    }
-
-    const onClose = () => {
-        setImgCrop(null)
-    }
-
-    // const handleFileChange = (e) => {
-    //     const selectedFile = e.target.files[0];
-    //     console.log(selectedFile);
-    //     // You can perform additional actions with the selected file, such as uploading it.
-    //   };
-
+    //profile picture 
     const handleImgClick = () => {
         inputRef.current.click();
     }
@@ -148,14 +130,14 @@ const ProfilePage = () => {
                 {/* //profile photo div */}
                 <form action="" className='w-11/12 flex flex-col items-center lg:block' onSubmit={formik.handleSubmit}>
                     <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' onClick={handleImgClick}>
-                         {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 '/>
-                         :  <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }}  />}
-                         
-                        
-                        
-                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} />
+                        {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' />
+                            : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />}
+
+
+
+                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} required />
                         <p className='text-md md:text-lg'>Profile photo</p>
-                       
+
                     </div>
 
 

@@ -103,7 +103,7 @@ export default function Registration() {
 
     } catch (error) {
       const newErrors = {};
-      error.inner.forEach((err) => {
+      error.inner?.forEach((err) => {
 
         newErrors[err.path] = err.message;
       });

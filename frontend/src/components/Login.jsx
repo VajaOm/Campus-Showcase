@@ -64,8 +64,18 @@ const Login = () => {
 
                 if (response.status === 201) {
                     console.log(response.data.message);
+                    console.log(response.data.data.redirectTo)
                     setUserAlreadyExisted("");
-                    navigate("/profile");
+                    console.log(response.data.redirectTo)
+
+                    if(response.data.data.redirectTo === '/profile') {
+                        navigate("/profile");
+                    }
+                    else{
+                        console.log("hme psadkfjlksajfokasjf")
+                        navigate("/home");
+                    }
+
                 }
             } catch (error) {
                 console.log("Error in registering user :: ", error.response.data.message);
@@ -112,7 +122,7 @@ const Login = () => {
 
                         <label htmlFor="role" className='2xl:mt-5 mt-5 sm:text-lg text-md lg:-mt-3 '>Role</label>
                         <select name="role" id="role" className=' mt-2 rounded-md p-2 w-2/5 focus:outline-none text-black 2xl:mt-2' onChange={onChangeHandler}>
-                            <option value="Student">Student</option>
+                            <option value="Student" defaultValue={"Student"}>Student</option>
                             <option value="Faculty">Faculty</option>
                         </select>
                         <br />
