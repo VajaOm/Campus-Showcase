@@ -6,7 +6,7 @@ import { loadSlim } from "tsparticles-slim";
 
 const ParticlesBg = () => {
     const particlesInit = useCallback(async engine => {
-        console.log(engine);
+        // console.log(engine);
         // you can initiate the tsParticles instance (engine) here, adding custom shapes or presets
         // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
         // starting from v2 you can add only the features you need reducing the bundle size
@@ -15,7 +15,7 @@ const ParticlesBg = () => {
     }, []);
 
     const particlesLoaded = useCallback(async container => {
-        await console.log(container);
+        // await console.log(container);
     }, []);
 
     return (
@@ -53,6 +53,7 @@ const ParticlesBg = () => {
                             distance: 200,
                             duration: 0.1,
                         },
+                        
                     },
                 },
                 particles: {
@@ -63,7 +64,7 @@ const ParticlesBg = () => {
                         color: "#ffffff",
                         distance: 150,
                         enable: true,
-                        opacity: 0.5,
+                        opacity: 0.3,
                         width: 0.5,
                     },
                     move: {
@@ -84,7 +85,7 @@ const ParticlesBg = () => {
                         value: 80,
                     },
                     opacity: {
-                        value: 0.8,
+                        value: 0.5,
                     },
                     shape: {
                         type: "circle",

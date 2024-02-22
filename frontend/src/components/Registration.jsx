@@ -26,7 +26,7 @@ export default function Registration() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [userAlreadyExisted, setUserAlreadyExisted] = useState("");
-  
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -50,7 +50,7 @@ export default function Registration() {
   const togglePasswordVisibility = ((prevState) => {
     setPasswordVisible(!passwordVisible);
   });
-  
+
   const toggleConfirmPasswordVisibility = ((prev) => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   })
@@ -84,21 +84,21 @@ export default function Registration() {
 
       try {
         const response = await axios.post("http://localhost:5000/user/register", formData, {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            }
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          }
         });
-        
+
         if (response.status === 201) {
           console.log(response.data.message);
-            console.log("Registration successful");
-            navigate('/')
-            setUserAlreadyExisted("");
+          console.log("Registration successful");
+          navigate('/')
+          setUserAlreadyExisted("");
         }
-    } catch (error) {
+      } catch (error) {
         console.log("Error in registering user :: ", error.response.data.message);
         setUserAlreadyExisted(error.response.data.message)
-    }
+      }
 
 
     } catch (error) {
@@ -168,7 +168,7 @@ export default function Registration() {
 
           <button className='bg-[#9290C3] text-black font-semibold lg:w-1/6 w-2/5 px-4 lg:py-2 py-3 rounded-md hover:bg-[#535C91] hover:scale-105 transition duration-500 lg:mt-0 mt-2 mb-0 2xl:mt-5'>Register</button>
           <Link to="/" className='lg:mt-4 mt-10'>Already have an account? <span className=' text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block  2xl:mt-5 '>Log in.</span> </Link>
-      <div className='text-red-500 text-lg w-full mt-5'>{userAlreadyExisted}</div>
+          <div className='text-red-500 text-lg w-full mt-5'>{userAlreadyExisted}</div>
         </form>
         <ParticlesBg className='absolute top-0 left-0 w-full h-full' />
       </div>

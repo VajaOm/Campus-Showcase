@@ -17,6 +17,7 @@ function App() {
         <Route path='/resetpassword' element={<PageNotFound />} />
         <Route path='/profile' element={<ProfilePage />} />
       </Routes>
+        {/* <ProfilePage /> */}
 
 
     </>
