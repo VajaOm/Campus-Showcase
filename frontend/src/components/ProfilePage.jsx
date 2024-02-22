@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import sideImg from '../assets/profile_side_img.png';
 import ParticlesBg from './ParticlesBg';
@@ -7,12 +7,21 @@ import ProfileAcademicForm from './ProfileAcademicForm';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Dialog } from 'primereact/dialog';
+// import Avatar from 'react-avatar-edit';
+import Avatar from '@mui/material/Avatar';
+
+
 
 
 const ProfilePage = () => {
 
     const [isGeneralInfo, setIsGeneralInfo] = useState(true);
     const [isSubmiting, setIsSubmiting] = useState(false);
+    const [dialogBox, setDialogBox] = useState(false);
+    const [imgCrop, setImgCrop] = useState(false);
+    const inputRef = useRef(null);
+    const [img, setImg] = useState("")
 
     //issue handling releted to same id 
     const formIdPrefixFirstForm = "firstForm";
@@ -100,6 +109,36 @@ const ProfilePage = () => {
         // });
     };
 
+    const avatarClickHandler = () => {
+        console.log("dialog box")
+        setDialogBox(true);
+    }
+
+    const onCrop = (view) => {
+        setImgCrop(view)
+    }
+
+    const onClose = () => {
+        setImgCrop(null)
+    }
+
+    // const handleFileChange = (e) => {
+    //     const selectedFile = e.target.files[0];
+    //     console.log(selectedFile);
+    //     // You can perform additional actions with the selected file, such as uploading it.
+    //   };
+
+    const handleImgClick = () => {
+        inputRef.current.click();
+    }
+
+    const handleImgChange = (e) => {
+        console.log(e)
+        const file = e.target?.files[0];
+        console.log(file);
+        setImg(file)
+    }
+
     return (
         <>
 
@@ -108,9 +147,15 @@ const ProfilePage = () => {
 
                 {/* //profile photo div */}
                 <form action="" className='w-11/12 flex flex-col items-center lg:block' onSubmit={formik.handleSubmit}>
-                    <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14'>
-                        <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />
+                    <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' onClick={handleImgClick}>
+                         {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 '/>
+                         :  <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }}  />}
+                         
+                        
+                        
+                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} />
                         <p className='text-md md:text-lg'>Profile photo</p>
+                       
                     </div>
 
 
@@ -148,7 +193,7 @@ const ProfilePage = () => {
                         <div>
                             <p className='text-2xl mt-10 text-center'>{isGeneralInfo ? 'General Information' : 'Academic Information'}</p>
 
-                            {isGeneralInfo ? <ProfileGeneralForm  formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm}/>}
+                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm} />}
                         </div>
 
                     </div >
