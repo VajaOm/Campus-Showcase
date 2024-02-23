@@ -17,7 +17,8 @@ import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
 
-    const [loading, setLoading] = useState(true);
+    const [userEmail, setUserEmail] = useState("");
+    const [userFullname, setUserFullname] = useState("");
 
     const navigate = useNavigate();
 
@@ -44,10 +45,8 @@ const ProfilePage = () => {
 
     const formik = useFormik({
         initialValues: {
-            ProfileGeneralForm: {
-                fullName: "",
+            ProfileGeneralForm: { 
                 username: "",
-                email: ""
             },
 
             ProfileAcademicForm: {
@@ -59,24 +58,12 @@ const ProfilePage = () => {
         },
         validationSchema: Yup.object({
             ProfileGeneralForm: Yup.object({
-                fullName: Yup.string().required(() => (
-                    <span>
-                        <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                        required
-                    </span>
-                )),
                 username: Yup.string().required(() => (
                     <span>
                         <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                         required
                     </span>
                 )),
-                email: Yup.string().required(() => (
-                    <span>
-                        <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                        required
-                    </span>
-                )).email("Invalid email format")
             }),
             ProfileAcademicForm: Yup.object({
                 enrollmentNo: Yup.string().required(() => (
@@ -109,9 +96,6 @@ const ProfilePage = () => {
     }, [userData]);
 
 
-
-
-
     useEffect(() => {
         console.log("use effect called");
     
@@ -121,7 +105,10 @@ const ProfilePage = () => {
                 const response = await axios.get("http://localhost:5000/user/profile", {
                     withCredentials: true,
                 });
-                console.log("Profile Data:", response.data.data.email);
+                setUserEmail(response.data.data.email)
+                
+                setUserFullname(response.data.data.fullName);
+             
             } catch (error) {
                 console.log("Error in profile page:", error);
                 // if (error.response) {
@@ -138,7 +125,6 @@ const ProfilePage = () => {
         })()
     }, [navigate]);
     
-
 
     //add btn handler
     const handleAddButtonClick = async () => {
@@ -188,7 +174,7 @@ const ProfilePage = () => {
                         {/* general form */}
                         <div className='flex flex-col w-1/4'>
                             <h1 className='text-2xl 2xl:text-3xl'>General Infromation</h1>
-                            <ProfileGeneralForm formik={formik} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} />
+                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname}  formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} />
                         </div>
 
                         {/* academic form */}
@@ -216,7 +202,7 @@ const ProfilePage = () => {
                         <div>
                             <p className='text-2xl mt-10 text-center'>{isGeneralInfo ? 'General Information' : 'Academic Information'}</p>
 
-                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm} />}
+                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} userEmail={userEmail} userFullname={userFullname} formik={formik} isSubmiting={isSubmiting} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm} />}
                         </div>
 
                     </div >
