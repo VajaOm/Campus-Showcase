@@ -1,0 +1,8 @@
+ # react router
+  rewriteengine on
+  rewritebase /
+  rewriterule ^index\.html$ - [l]
+  rewritecond %{request_filename} !-f
+  rewritecond %{request_filename} !-d
+  rewritecond %{request_filename} !-l
+  rewriterule . /index.html [l]

@@ -11,11 +11,13 @@ import { Dialog } from 'primereact/dialog';
 // import Avatar from 'react-avatar-edit';
 import Avatar from '@mui/material/Avatar';
 import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 
 const ProfilePage = () => {
+
+    const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
 
@@ -107,22 +109,42 @@ const ProfilePage = () => {
     }, [userData]);
 
 
+
+
+
+    useEffect(() => {
+        console.log("use effect called");
+    
+        ; (async () => {
+            try {
+                console.log("Making request to /user/profile");
+                const response = await axios.get("http://localhost:5000/user/profile", {
+                    withCredentials: true,
+                });
+                console.log("Profile Data:", response.data.data.email);
+            } catch (error) {
+                console.log("Error in profile page:", error);
+                // if (error.response) {
+                //     console.log("Response Status Code:", error.response.status);
+                //     console.log("Response Data:", error.response.data);
+                // }
+                if(error.response.status == 401) {
+                    navigate('/')
+                }
+                // if (error.request) {
+                //     console.log("Request:", error.request);
+                // }
+            }
+        })()
+    }, [navigate]);
+    
+
+
     //add btn handler
     const handleAddButtonClick = async () => {
         setIsSubmiting(true);
 
-        try {
-            const response = await axios.post("http://localhost:5000/profile", userData, {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                withCredentials: true,
-            });
-        } catch (error) {
-            navigate('/login')
-            console.log("Error found profile page ;;;; ", error);
 
-        }
     };
 
     //profile picture 
@@ -138,7 +160,7 @@ const ProfilePage = () => {
     }
 
     //handling post request
-
+    const isMobile = window.innerWidth <= 768;
 
     return (
         <>
@@ -200,7 +222,7 @@ const ProfilePage = () => {
                     </div >
                     <div className='flex justify-end w-11/12 xl:hidden'>
                         {!isGeneralInfo ? <button type='submit' className={`bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
-                          hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10`} onClick={handleAddButtonClick} >Add</button> : ""}
+  hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10`} onClick={handleAddButtonClick} >Add</button> : ""}
                     </div>
                 </form>
 

@@ -12,6 +12,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import * as Yup from 'yup';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { parse } from 'cookie';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -52,27 +53,31 @@ const Login = () => {
             console.log("Form submitted");
 
             try {
+                const cookies = parse(document.cookie);
+                const accessToken = cookies["accessToken"];
+                console.log(accessToken)
                 const response = await axios.post("http://localhost:5000/user/login", formData, {
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
+                        Authorization: `Bearer ${accessToken}`,
                     },
 
                     //this should be add otherwise 
                     //! cookie is seen in the browser network but not in the application storage cookie section
-                    withCredentials: true,  
+                    withCredentials: true,
                 });
 
                 if (response.status === 201) {
                     console.log(response.data.message);
-                    console.log(response.data.data.redirectTo)
-                    setUserAlreadyExisted("");
-                    console.log(response.data.redirectTo)
+                    console.log("response.data.data ::::: ", response.data.data)
 
-                    if(response.data.data.redirectTo === '/profile') {
+                    setUserAlreadyExisted("");
+
+
+                    if (response.data.data.redirectTo === '/profile') {
                         navigate("/profile");
                     }
-                    else{
-                        console.log("hme psadkfjlksajfokasjf")
+                    else {
+
                         navigate("/home");
                     }
 
@@ -83,7 +88,7 @@ const Login = () => {
             }
 
         } catch (error) {
-           
+
             const newErrors = {};
 
             if (error) {

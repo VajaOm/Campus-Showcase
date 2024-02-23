@@ -98,6 +98,8 @@ const loginUser = asyncHandler(async (req, res) => {
     console.log("username :: ", username)
     console.log("Role :: ", role)
 
+    console.log("Before querying the database...");
+
     if (role === "Student") {
         if (emailorusername.includes("@gmail.com")) {
             user = await Student.findOne({ email: emailorusername });
@@ -114,6 +116,7 @@ const loginUser = asyncHandler(async (req, res) => {
         }
     }
 
+    console.log("after querying the database...");
     // console.log(user)
 
     if (!user) {
@@ -205,7 +208,7 @@ const profileCreation = asyncHandler(async (req, res) => {
         if (!user) {
             throw new Error('User not found');
         }
-        res.json({ user });
+        res.json( new ApiResponse(201, "user data fetched", user));
      
     
 })
@@ -245,7 +248,9 @@ const logoutUser = asyncHandler(async (req, res) => {
         .status(200)
         .clearCookie('accessToken', options)
         .clearCookie('refreshToken', options)
-        .json(new ApiResponse(200, {}, 'User logged out.'));
+        .json(new ApiResponse(200,'User logged out.', {} ));
+
+        
 });
 
 

@@ -5,48 +5,43 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from 'jsonwebtoken';
 
 const veriJwt = asyncHandler(async (req, res, next) => {
+    let user;
 
-        let user;
-        console.log("jwt veification start")
-        // console.log(JSON.stringify(req.cookies))
+    if (req.cookies?.accessToken ) {
+        const token = req.cookies?.accessToken ;
 
-        console.log(req.header("Authorization")?.replace("Bearer ", ""))
+        if (!token) {
+            // res.status(401).json({ success: false, message: "Unauthorized access - Token not found" });
+            return next(new ApiError(401, "Token not found, you are not logged in"));
+        }
 
-        if(req.cookies?.accessToken || req.header("Authorization")) {
-            console.log("this is called")
-
-            const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-    
-            console.log("Token ::: " + token);
-    
-            if (!token) {
-                throw new ApiError(401, "Unauthorized access");
-            }
-    
+        try {
             const extractedToken = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    
-            // console.log("extracted token :: " + JSON.stringify(extractedToken));
-    
-    
+            
+console.log("Extracted Token Payload:", extractedToken);
+
+
             if (extractedToken?.role === "Student") {
                 user = await Student.findById(extractedToken?._id).select("-password -refreshToken");
-            }
-    
+            } 
+
             if (extractedToken.role === "Faculty") {
                 user = await Faculty.findById(extractedToken?._id).select("-password -refreshToken");
-                console.log("faculty extracted token user :: "+user)
             }
-    
+
             if (!user) {
-                throw new ApiError(401, "Invalid access token");
+                return res.status(401).json({ success: false, message: "Invalid access token" });
             }
-    
+
             req.user = user;
             next();
+        } catch (error) {
+            return next(new ApiError(401, "Invalid access token"));
+            
         }
-        else{
-            throw new ApiError(402, "Token not found")
-        }
-})
+    } else {
+        return res.status(401).json({ success: false, message: "Token not found" })
+    }
+});
 
-export {veriJwt}
+export { veriJwt };
