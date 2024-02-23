@@ -66,8 +66,8 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
             user = await Faculty.findById(userID);
         }
 
-        const accessToken = await user.generateAccessTokens(user, role);
-        const refreshToken = await user.generateRefreshToken(user, role);
+        const accessToken = await user.generateAccessTokens(user);
+        const refreshToken = await user.generateRefreshToken(user);
 
         //adding refreshToken into the db
         user.refreshToken = refreshToken;
@@ -198,4 +198,55 @@ const loginUser = asyncHandler(async (req, res) => {
     
 });
 
-export { registerUser, loginUser }
+const profileCreation = asyncHandler(async (req, res) => {
+    console.log("profile page rendering")
+
+        const user = req.user;
+        if (!user) {
+            throw new Error('User not found');
+        }
+        res.json({ user });
+     
+    
+})
+
+
+const logoutUser = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const userType = req.user.role; // Assuming you have a 'role' property in your user schema
+
+    // Assuming you have models Faculty and Student imported appropriately
+    let User;
+    if (userType === 'Student') {
+        User = Student;
+    } else if (userType === 'Faculty') {
+        User = Faculty;
+    } else {
+        // Handle other user types if necessary
+        throw new ApiError(400, 'Invalid user type');
+    }
+
+    await User.findByIdAndUpdate(
+        userId,
+        {
+            refreshToken: undefined
+        },
+        {
+            new: true // this will return a new modified document
+        }
+    );
+
+    const options = {
+        httponly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie('accessToken', options)
+        .clearCookie('refreshToken', options)
+        .json(new ApiResponse(200, {}, 'User logged out.'));
+});
+
+
+export { registerUser, loginUser, profileCreation, logoutUser }

@@ -6,44 +6,47 @@ import jwt from 'jsonwebtoken';
 
 const veriJwt = asyncHandler(async (req, res, next) => {
 
-
-
-    try {
         let user;
-        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+        console.log("jwt veification start")
+        // console.log(JSON.stringify(req.cookies))
 
-        console.log("Token ::: " + token);
+        console.log(req.header("Authorization")?.replace("Bearer ", ""))
 
-        if (!token) {
-            throw new ApiError(401, "Unauthorized access");
+        if(req.cookies?.accessToken || req.header("Authorization")) {
+            console.log("this is called")
+
+            const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+    
+            console.log("Token ::: " + token);
+    
+            if (!token) {
+                throw new ApiError(401, "Unauthorized access");
+            }
+    
+            const extractedToken = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    
+            // console.log("extracted token :: " + JSON.stringify(extractedToken));
+    
+    
+            if (extractedToken?.role === "Student") {
+                user = await Student.findById(extractedToken?._id).select("-password -refreshToken");
+            }
+    
+            if (extractedToken.role === "Faculty") {
+                user = await Faculty.findById(extractedToken?._id).select("-password -refreshToken");
+                console.log("faculty extracted token user :: "+user)
+            }
+    
+            if (!user) {
+                throw new ApiError(401, "Invalid access token");
+            }
+    
+            req.user = user;
+            next();
         }
-
-        const extractedToken = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-        console.log("extracted token :: " + extractedToken);
-
-
-        if (extractedToken?.role === "Student") {
-            user = await Student.findById(extractedToken?._id).select("-password -refreshToken");
-
-
+        else{
+            throw new ApiError(402, "Token not found")
         }
-
-        if (extractedToken.role === "Faculty") {
-            user = await Faculty.findById(extractedToken?._id).select("-password -refreshToken");
-        }
-
-        if (!user) {
-            throw new ApiError(401, "Invalid access token");
-        }
-
-        req.user = user;
-        next();
-
-    } catch (error) {
-        throw new ApiError(401, error?.message || "Invalid Access token");
-    }
-
 })
 
 export {veriJwt}

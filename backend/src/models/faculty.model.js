@@ -25,6 +25,10 @@ const facultySchema = mongoose.Schema(
             lowercase: true,
             trim: true
         },
+        role: {
+            type: String,
+            default: "Faculty"
+        },
         deparment: {
             type: String
         },

@@ -15,7 +15,7 @@ const studentSchema = mongoose.Schema(
             type: String,
             lowercase: true,
             trim: true,
-          
+            
         },
         enrollmentNo: {
             type: Number
@@ -28,6 +28,10 @@ const studentSchema = mongoose.Schema(
         },
         year: {
             type: Number
+        },
+        role: {
+            type: String,
+            default: "Student"
         },
         semester: {
             type: Number
@@ -85,12 +89,13 @@ const studentSchema = mongoose.Schema(
     }
 
     //generating access and refresh tokens
-    studentSchema.methods.generateAccessTokens = function() {
-        return generateAccessToken(this);
+    studentSchema.methods.generateAccessTokens = function(role) {
+        console.log("student schema generateAccessTokens :::: ",role)
+        return generateAccessToken(this, role);
     }
 
     studentSchema.methods.generateRefreshToken = function () {
-        return generateRefreshToken(this);
+        return generateRefreshToken(this, this.role);
     }
 
 

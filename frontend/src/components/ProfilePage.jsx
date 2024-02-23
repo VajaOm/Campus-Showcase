@@ -10,11 +10,14 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Dialog } from 'primereact/dialog';
 // import Avatar from 'react-avatar-edit';
 import Avatar from '@mui/material/Avatar';
-
+import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 
 
 
 const ProfilePage = () => {
+
+    const navigate = useNavigate();
 
     const [isGeneralInfo, setIsGeneralInfo] = useState(true);
     const [isSubmiting, setIsSubmiting] = useState(false);
@@ -105,8 +108,21 @@ const ProfilePage = () => {
 
 
     //add btn handler
-    const handleAddButtonClick = () => {
+    const handleAddButtonClick = async () => {
         setIsSubmiting(true);
+
+        try {
+            const response = await axios.post("http://localhost:5000/profile", userData, {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                withCredentials: true,
+            });
+        } catch (error) {
+            navigate('/login')
+            console.log("Error found profile page ;;;; ", error);
+
+        }
     };
 
     //profile picture 
@@ -120,6 +136,9 @@ const ProfilePage = () => {
         console.log(file);
         setImg(file)
     }
+
+    //handling post request
+
 
     return (
         <>
