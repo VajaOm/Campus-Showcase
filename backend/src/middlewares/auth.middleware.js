@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken';
 const veriJwt = asyncHandler(async (req, res, next) => {
     let user;
 
-    if (req.cookies?.accessToken ) {
-        const token = req.cookies?.accessToken ;
+    if (req.cookies?.accessToken) {
+        const token = req.cookies?.accessToken;
 
         if (!token) {
             // res.status(401).json({ success: false, message: "Unauthorized access - Token not found" });
@@ -17,13 +17,13 @@ const veriJwt = asyncHandler(async (req, res, next) => {
 
         try {
             const extractedToken = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            
-console.log("Extracted Token Payload:", extractedToken);
+
+            // console.log("Extracted Token Payload:", extractedToken);
 
 
             if (extractedToken?.role === "Student") {
                 user = await Student.findById(extractedToken?._id).select("-password -refreshToken");
-            } 
+            }
 
             if (extractedToken.role === "Faculty") {
                 user = await Faculty.findById(extractedToken?._id).select("-password -refreshToken");
@@ -37,7 +37,7 @@ console.log("Extracted Token Payload:", extractedToken);
             next();
         } catch (error) {
             return next(new ApiError(401, "Invalid access token"));
-            
+
         }
     } else {
         return res.status(401).json({ success: false, message: "Token not found" })

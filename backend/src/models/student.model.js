@@ -40,7 +40,7 @@ const studentSchema = mongoose.Schema(
             type: String,
             required: true
         },
-        profilePhoto:{
+        avatar:{
             type: String
         },
         projects: [

@@ -25,6 +25,10 @@ const facultySchema = mongoose.Schema(
             lowercase: true,
             trim: true
         },
+        firstTime: {
+            type: Boolean,
+            default: true
+        },
         role: {
             type: String,
             default: "Faculty"
@@ -36,7 +40,7 @@ const facultySchema = mongoose.Schema(
             type: String,
             required: true
         },
-        profilePhoto:{
+        avatar:{
             type: String
         },
         projects: [

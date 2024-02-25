@@ -16,11 +16,7 @@ const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, form
                     disabled
                 />
 
-                {formik.errors.ProfileGeneralForm && isSubmiting && (
-                    <div style={{ color: "red" }}>
-                        <small>{formik.errors.ProfileGeneralForm.fullName}</small>
-                    </div>
-                )}
+
 
                 <label htmlFor={`${formIdPrefix}username`} className=' mt-6 2xl:mt-8'>Username</label>
                 <input
@@ -55,6 +51,8 @@ const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, form
                         <small>{formik.errors.ProfileGeneralForm.email}</small>
                     </div>
                 )}
+
+
 
             </div>
 

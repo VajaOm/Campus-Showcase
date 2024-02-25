@@ -1,36 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 
-const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix}) => {
+const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix }) => {
 
+    const [selectedYear, setSelectedYear] = useState(1);
 
-    //schema for yup
-    
+    const years = [1, 2, 3, 4];
+    const semesters = {
+        1: [1, 2],
+        2: [3, 4],
+        3: [5, 6],
+        4: [7, 8]
+    };
 
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // console.log("academic form submitted");
-        onSubmit("academic form data")
+    const yearInputChangeHandler = (e) => {
+        setSelectedYear(e.target.value);
+        console.log("Selected Year:", e.target.value);
     }
-
-
-    
-
-    
 
     return (
         <div>
             <div className='grid grid-cols-1 mt-5 xl:mt-2 2xl:mt-10 text-lg form'>
 
                 <label htmlFor={`${formIdPrefix}enrollmentNo`}>Enrollment No.</label>
-                <input type="number" id={`${formIdPrefix}enrollmentNo`}  className='bg-[#070F2B] border-b-2 w-full focus:outline-none xl:mt-0 2xl:mt-2 md:mt-2 text-md'
+                <input type="number" id={`${formIdPrefix}enrollmentNo`} className='bg-[#070F2B] border-b-2 w-full focus:outline-none xl:mt-0 2xl:mt-2 md:mt-2 text-md'
                     name="ProfileAcademicForm.enrollmentNo"
                     value={formik.values.ProfileAcademicForm.enrollmentNo}
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange} />
-                {formik.errors.ProfileAcademicForm && isSubmiting &&(
+                {formik.errors.ProfileAcademicForm && isSubmiting && (
                     <div style={{ color: "red" }}>
                         <small>{formik.errors.ProfileAcademicForm.enrollmentNo}</small>
                     </div>
@@ -41,15 +39,19 @@ const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix}) => {
 
 
                 <label htmlFor={`${formIdPrefix}year`} className='mt-6 2xl:mt-8 xl:mt-5'>Year</label>
-                <select id={`${formIdPrefix}year`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0' 
+                <select id={`${formIdPrefix}year`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0'
                     name="ProfileAcademicForm.year"
                     value={formik.values.ProfileAcademicForm.year}
                     onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}>
-                    <option values="1">1</option>
-                    <option values="2">2</option>
-                    <option values="3">3</option>
-                    <option values="4">4</option>
+                    onChange={(e) => {
+                        yearInputChangeHandler(e);
+                        formik.handleChange(e);
+                      }} >
+                    {
+                        years.map((year) => {
+                            return <option value={year} key={year}>{year}</option>
+                        })
+                    }
                 </select>
                 {formik.errors.ProfileAcademicForm && isSubmiting && (
                     <div style={{ color: "red" }}>
@@ -59,20 +61,18 @@ const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix}) => {
 
 
                 <label htmlFor={`${formIdPrefix}semester`} className='mt-6 xl:mt-5 2xl:mt-8'>Semester</label>
-                <select id={`${formIdPrefix}semester`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0' 
+                { selectedYear && <select id={`${formIdPrefix}semester`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0'
                     name="ProfileAcademicForm.semester"
                     value={formik.values.ProfileAcademicForm.semester}
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}>
-                    <option values="1">1</option>
-                    <option values="2">2</option>
-                    <option values="3">3</option>
-                    <option values="4">4</option>
-                    <option values="4">5</option>
-                    <option values="4">6</option>
-                    <option values="4">7</option>
-                    <option values="4">8</option>
-                </select>
+                    
+                    {
+                        semesters[selectedYear].map( (semester) => {
+                            return <option value={semester} key={semester} >{semester}</option>
+                        })
+                    }
+                </select>}
                 {formik.errors.ProfileAcademicForm && isSubmiting && (
                     <div style={{ color: "red" }}>
                         <small>{formik.errors.ProfileAcademicForm.semester}</small>

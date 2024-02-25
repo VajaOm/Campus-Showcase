@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Student } from '../models/student.model.js';
 import { Faculty } from '../models/faculty.model.js';
+import { uploadOnCloudinary } from '../utils/cloudinary.js';
 
 const registerUser = asyncHandler(async (req, res) => {
     let createdUser;
@@ -124,7 +125,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     //if user if first time login then redirect him to the profile page by default
-    
+
     const isPasswordMatch = await user.isPasswordCorrect(password);
 
     if (!isPasswordMatch) {
@@ -146,22 +147,22 @@ const loginUser = asyncHandler(async (req, res) => {
         await Faculty.updateOne({ email: user.email }, { $set: { firstLogin: false } });
 
         return res.status(201)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(201,
-                "User is logged in",
-                {
-                    user,
-                    redirectTo: "/profile" 
-                }
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponse(201,
+                    "User is logged in",
+                    {
+                        user,
+                        redirectTo: "/facultyProfile"
+                    }
+                )
             )
-        )
-        
+
     } else if (role === "Student" && user.firstTime) {
         console.log("first time student fun");
         const x = await Student.updateOne({ email: user.email }, { $set: { firstTime: false } });
-        console.log("updated data :: ",x);
+        console.log("updated data :: ", x);
         await user.save({ validateBeforeSave: false });
 
         if (emailorusername.includes("@gmail.com")) {
@@ -171,19 +172,19 @@ const loginUser = asyncHandler(async (req, res) => {
         }
 
         console.log(user)
-        
+
         return res.status(201)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(201,
-                "User is logged in",
-                {
-                    user,
-                    redirectTo: "/profile" 
-                }
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponse(201,
+                    "User is logged in",
+                    {
+                        user,
+                        redirectTo: "/studentProfile"
+                    }
+                )
             )
-        )
     }
 
     return res.status(201)
@@ -198,20 +199,82 @@ const loginUser = asyncHandler(async (req, res) => {
             )
         )
 
-    
+
 });
 
-const profileCreation = asyncHandler(async (req, res) => {
+const getUserProfileData = asyncHandler(async (req, res) => {
     console.log("profile page rendering")
 
-        const user = req.user;
-        if (!user) {
-            throw new Error('User not found');
-        }
-        res.json( new ApiResponse(201, "user data fetched", user));
-     
-    
-})
+    const user = req.user;
+    if (!user) {
+        throw new Error('User not found');
+    }
+    res.json(new ApiResponse(201, "user data fetched", user));
+
+
+});
+
+
+const profileUpload = asyncHandler(async (req, res) => {
+console.log("update page rendering")
+    const { username, enrollmentNo, year, semester, avatar } = req.body;
+    const { _id, email, role } = req.user;
+
+    let user, updatedUser;
+    console.log(req.file);
+
+
+    const avatarLocalPath = req.file?.path;
+    // console.log(avatarLocalPath)
+    const avatarCloudinary = await uploadOnCloudinary(avatarLocalPath, "avatars");
+    // console.log(avatarCloudinary)
+    if (!avatarCloudinary) {
+        throw new ApiError(400, "image upload on the cloudinary failed");
+    }
+
+    if (role == "Student") {
+        user = await Student.findById(_id)
+        // console.log(user)
+
+        updatedUser = await Student.updateOne({ email: email }, {
+            $set: {
+                username: username,
+                enrollmentNo: enrollmentNo,
+                year: year,
+                semester: semester,
+                avatar: avatarCloudinary.url
+            }
+        })
+        // console.log(updatedUser);
+    }
+
+    if (role == "Faculty") {
+        user = await Faculty.findById(_id)
+        // console.log(user)
+
+        updatedUser = await Faculty.updateOne({ email: email }, {
+            $set: {
+                username: username,
+                avatar: avatarCloudinary.url
+            }
+        })
+    }
+
+    if (!user) {
+        throw new ApiError(404, "User not found.");
+    }
+
+    if (!updatedUser.acknowledged) {
+        throw new ApiError(500, "User data not added");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "User data added successfully", user)
+    )
+
+});
+
+
 
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -248,10 +311,10 @@ const logoutUser = asyncHandler(async (req, res) => {
         .status(200)
         .clearCookie('accessToken', options)
         .clearCookie('refreshToken', options)
-        .json(new ApiResponse(200,'User logged out.', {} ));
+        .json(new ApiResponse(200, 'User logged out.', {}));
 
-        
+
 });
 
 
-export { registerUser, loginUser, profileCreation, logoutUser }
+export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload }

@@ -1,33 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import sideImg from '../assets/profile_side_img.png';
 import ParticlesBg from './ParticlesBg';
 import ProfileGeneralForm from './ProfileGeneralForm';
 import ProfileAcademicForm from './ProfileAcademicForm';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { Dialog } from 'primereact/dialog';
-// import Avatar from 'react-avatar-edit';
 import Avatar from '@mui/material/Avatar';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import { Toast } from 'primereact/toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 const ProfilePage = () => {
 
     const [userEmail, setUserEmail] = useState("");
     const [userFullname, setUserFullname] = useState("");
-
     const navigate = useNavigate();
-
     const [isGeneralInfo, setIsGeneralInfo] = useState(true);
     const [isSubmiting, setIsSubmiting] = useState(false);
     const inputRef = useRef(null);
-    const [img, setImg] = useState("")
+    const [img, setImg] = useState(null)
 
-    const [userData, setUserData] = useState({});
+
 
     //issue handling releted to same id 
     const formIdPrefixFirstForm = "firstForm";
@@ -45,7 +41,7 @@ const ProfilePage = () => {
 
     const formik = useFormik({
         initialValues: {
-            ProfileGeneralForm: { 
+            ProfileGeneralForm: {
                 username: "",
             },
 
@@ -83,22 +79,19 @@ const ProfilePage = () => {
                         <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                         required
                     </span>
-                ))
+                )),
             })
         }),
         onSubmit: (values) => {
-            setUserData({ ...values, img })
+            console.log(values)
         }
     })
 
-    useEffect(() => {
-        console.log("form data ::: ", userData);
-    }, [userData]);
 
 
     useEffect(() => {
         console.log("use effect called");
-    
+
         ; (async () => {
             try {
                 console.log("Making request to /user/profile");
@@ -106,16 +99,19 @@ const ProfilePage = () => {
                     withCredentials: true,
                 });
                 setUserEmail(response.data.data.email)
-                
+
                 setUserFullname(response.data.data.fullName);
-             
+                if(response.data.data.role === "Faculty") {
+                    navigate('/facultyProfile');
+                }
+
             } catch (error) {
                 console.log("Error in profile page:", error);
                 // if (error.response) {
                 //     console.log("Response Status Code:", error.response.status);
                 //     console.log("Response Data:", error.response.data);
                 // }
-                if(error.response.status == 401) {
+                if (error.response?.status == 401) {
                     navigate('/')
                 }
                 // if (error.request) {
@@ -124,11 +120,42 @@ const ProfilePage = () => {
             }
         })()
     }, [navigate]);
-    
+
 
     //add btn handler
     const handleAddButtonClick = async () => {
         setIsSubmiting(true);
+        console.log("img state updated:", img);
+        if (!img) {
+            console.log("error : image needed")
+            toast.error("Profile picture required")
+        } else {
+
+            const userData = {
+                username: formik.values.ProfileGeneralForm.username,
+                enrollmentNo: formik.values.ProfileAcademicForm.enrollmentNo,
+                year: formik.values.ProfileAcademicForm.year,
+                semester: formik.values.ProfileAcademicForm.semester,
+                avatar: img
+            };
+
+            console.log("user data" + userData)
+
+            try {
+
+                const response = await axios.post("http://localhost:5000/user/profile", userData, {
+                    headers: {
+                        'Content-Type': "multipart/form-data"
+                    },
+                    withCredentials: true
+                });
+                console.log(response)
+
+            } catch (error) {
+                console.log("error in submit  :: " + error)
+            }
+        }
+
 
 
     };
@@ -145,8 +172,7 @@ const ProfilePage = () => {
         setImg(file)
     }
 
-    //handling post request
-    const isMobile = window.innerWidth <= 768;
+
 
     return (
         <>
@@ -160,9 +186,12 @@ const ProfilePage = () => {
                         {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' />
                             : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />}
 
+                        <Toaster
+                            position="top-center"
+                            reverseOrder={false}
+                        />
 
-
-                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} required />
+                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} />
                         <p className='text-md md:text-lg'>Profile photo</p>
 
                     </div>
@@ -174,7 +203,7 @@ const ProfilePage = () => {
                         {/* general form */}
                         <div className='flex flex-col w-1/4'>
                             <h1 className='text-2xl 2xl:text-3xl'>General Infromation</h1>
-                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname}  formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} />
+                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} />
                         </div>
 
                         {/* academic form */}

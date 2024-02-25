@@ -73,11 +73,13 @@ const Login = () => {
                     setUserAlreadyExisted("");
 
 
-                    if (response.data.data.redirectTo === '/profile') {
-                        navigate("/profile");
+                    if (response.data.data.redirectTo === '/studentProfile') {
+                        navigate("/studentProfile");
+                    }
+                    else if(response.data.data.redirectTo === "/facultyProfile") {
+                        navigate('/facultyProfile');
                     }
                     else {
-
                         navigate("/home");
                     }
 
