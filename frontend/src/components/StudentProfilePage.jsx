@@ -101,7 +101,7 @@ const ProfilePage = () => {
                 setUserEmail(response.data.data.email)
 
                 setUserFullname(response.data.data.fullName);
-                if(response.data.data.role === "Faculty") {
+                if (response.data.data.role === "Faculty") {
                     navigate('/facultyProfile');
                 }
 
@@ -123,40 +123,53 @@ const ProfilePage = () => {
 
 
     //add btn handler
-    const handleAddButtonClick = async () => {
+    const handleAddButtonClick = async (e) => {
         setIsSubmiting(true);
-        console.log("img state updated:", img);
-        if (!img) {
-            console.log("error : image needed")
+
+        console.log(img)
+        if (img === null) {
+            console.log("img is required")
             toast.error("Profile picture required")
-        } else {
-
-            const userData = {
-                username: formik.values.ProfileGeneralForm.username,
-                enrollmentNo: formik.values.ProfileAcademicForm.enrollmentNo,
-                year: formik.values.ProfileAcademicForm.year,
-                semester: formik.values.ProfileAcademicForm.semester,
-                avatar: img
-            };
-
-            console.log("user data" + userData)
-
-            try {
-
-                const response = await axios.post("http://localhost:5000/user/profile", userData, {
-                    headers: {
-                        'Content-Type': "multipart/form-data"
-                    },
-                    withCredentials: true
-                });
-                console.log(response)
-
-            } catch (error) {
-                console.log("error in submit  :: " + error)
-            }
         }
+        else {
 
+            let validExtensions = ['jpg', 'jpeg'];
+            let position_of_dot = img.name.lastIndexOf(".");
+            let img_extension = img.name.substring(position_of_dot + 1);
+            let result = validExtensions.includes(img_extension);
+            console.log(result)
+            if (result === false) {
+                toast.error("Please upload an image in either JPG or JPEG format");
+            }
 
+            else {
+                console.log("img state updated:", img);
+                const userData = {
+                    username: formik.values.ProfileGeneralForm.username,
+                    enrollmentNo: formik.values.ProfileAcademicForm.enrollmentNo,
+                    year: formik.values.ProfileAcademicForm.year,
+                    semester: formik.values.ProfileAcademicForm.semester,
+                    avatar: img
+                };
+
+                console.log("user data" + userData)
+
+                try {
+
+                    const response = await axios.post("http://localhost:5000/user/profile", userData, {
+                        headers: {
+                            'Content-Type': "multipart/form-data"
+                        },
+                        withCredentials: true
+                    });
+                    console.log(response)
+
+                } catch (error) {
+                    console.log("error in submit  :: " + error)
+                }
+            }
+
+        }
 
     };
 

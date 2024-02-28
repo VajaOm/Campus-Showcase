@@ -7,13 +7,15 @@ import StudentProfilePage from './components/StudentProfilePage';
 import Home from './components/Home';
 import React,{useState, useEffect} from 'react' 
 import FacultyProfilePage from './components/FacultyProfilePage';
+import AddProject from './components/AddProject';
+import Dashboard from './components/Dashboard';
 // import ProtectRoute from './ProtectRoute';
 
 function App() {
 
   return (
     <>
-       <Routes>
+       {/* <Routes>
 
         <Route path='/' element={<Login />} />
         <Route path='/registration' element={<Registration />} />
@@ -21,9 +23,9 @@ function App() {
         <Route path='/studentProfile' element={<StudentProfilePage />} />
         <Route path='/facultyProfile' element={<FacultyProfilePage />}/>
          <Route path='/home' element={<Home /> } />
-      </Routes>  
+      </Routes>   */}
        
- 
+ <Dashboard />
 
     </>
   )
