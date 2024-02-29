@@ -78,10 +78,13 @@ function AddProject({ showMenu }) {
     }
 
     return (
-        <div className='flex justify-center w-full sm:justify-start sm:w-full md:w-9/12 lg:w-9/12 box-border overflow-y-auto flex-1 '  style={{backgroundImage: `url(${topPattern})`}}>
-           
-            <form action="" onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className='w-10/12 sm:w-full md:w-full lg:w-10/12 flex justify-center '>
-                <div className={`flex flex-col sm:mx-10 md:w-full sm:w-full w-full ${showMenu ? 'filter blur-sm' : ''}`}>
+        <div
+            className={`flex justify-center w-full sm:justify-start sm:w-full md:w-11/12 lg:w-9/12 box-border overflow-y-auto flex-1 ${showMenu ? 'filter blur-sm' : ''}`}
+
+        >
+
+            <form action="" onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className='w-10/12 sm:w-full md:w-full lg:w-full flex justify-center '>
+                <div className={`flex flex-col sm:mx-10 md:w-full sm:w-full w-full `}>
                     <p className="text-slate-100 text-2xl lg:text-3xl mt-14 2xl:text-3xl lg:mt-5 ">Add Project</p>
 
                     <label htmlFor="projectTitle" className='text-slate-100 text-lg mt-6 lg:mt-4'>Project Title</label>

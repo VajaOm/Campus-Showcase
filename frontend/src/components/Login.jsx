@@ -80,7 +80,7 @@ const Login = () => {
                         navigate('/facultyProfile');
                     }
                     else {
-                        navigate("/home");
+                        navigate("/dashboard");
                     }
 
                 }
