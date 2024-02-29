@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
-export default function UploadFields({ label }) {
+export default function UploadFields({ label, onFileChange }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [deletedIndex, setDeletedIndex] = useState(null);
 
     const handleFileInputChange = (e) => {
         const files = e.target.files;
         setSelectedFiles((prev) => [...prev, ...files]);
+        onFileChange([...selectedFiles, ...files]);
     };
 
     const deleteFileBtnClickHandler = (index) => {
@@ -17,6 +18,7 @@ export default function UploadFields({ label }) {
             updatedFiles.splice(index, 1);
             setSelectedFiles(updatedFiles);
             setDeletedIndex(null);
+            onFileChange(updatedFiles);
         }, 300);
     };
 

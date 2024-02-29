@@ -10,8 +10,16 @@ function AddProject({ showMenu }) {
     const [projectData, setProjectData] = useState({
         projectTitle: "",
         description: "",
+        tools: "",
         category: ""
     })
+
+    const [fileData, setFileData] = useState({
+        images: [],
+        video: [],
+        sourceCode: [],
+        ppt: []
+    });
 
     const validationSchema = Yup.object({
         projectTitle: Yup.string().required(() => (
@@ -67,7 +75,23 @@ function AddProject({ showMenu }) {
 
         try {
             await validationSchema.validate(projectData, { abortEarly: false });
+
             // console.log("Project data: " + JSON.stringify(projectData));
+           
+
+
+            const FinalProjectData = {
+                title: projectData.projectTitle,
+                description: projectData.description,
+                tools: projectData.tools,
+                category: projectData.category,
+                images: fileData.images,
+                video: fileData.video,
+                sourceCode: fileData.sourceCode,
+                ppt: fileData.ppt
+            }
+            console.log(FinalProjectData)
+    
         } catch (error) {
             let newErrors = {};
             error.inner?.forEach((err) => {
@@ -114,13 +138,13 @@ function AddProject({ showMenu }) {
                     <p className="text-slate-100 text-xl mt-6 lg:mt-4">Upload your project</p>
                     <br />
 
-                    <UploadFields label="Images" />
+                    <UploadFields label="Images" onFileChange={(files) => setFileData({ ...fileData, images: files })} />
                     <br />
-                    <UploadFields label="Source Code" />
+                    <UploadFields label="Source Code" onFileChange={(files) => setFileData({ ...fileData, sourceCode: files })} />
                     <br />
-                    <UploadFields label="Video" />
+                    <UploadFields label="Video" onFileChange={(files) => setFileData({ ...fileData, video: files })} />
                     <br />
-                    <UploadFields label="PPT" />
+                    <UploadFields label="PPT" onFileChange={(files) => setFileData({ ...fileData, ppt: files })} />
                     <div className='flex justify-center mt-10'>
 
                         <button className='rounded-md p-2 hover:bg-[#535C91] bg-[#9290C3] text-black font-bold mb-10 w-full md:w-1/2 lg:w-2/12 transform duration-200' >Add Project</button>
