@@ -93,9 +93,10 @@ const getMyProjects = asyncHandler(async (req, res) => {
 });
 
 const deleteProject = asyncHandler( async (req,res) => {
-    const {id} = req.body;
+    const {deleteProjectId} = req.body;
+    console.log("project id : "+ deleteProjectId)
 
-    const deleteStatus = await Project.deleteOne({_id : id});
+    const deleteStatus = await Project.deleteOne({_id : deleteProjectId});
 
     if(!deleteStatus) {
         throw new ApiError(402, "Error in deleting the project");

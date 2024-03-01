@@ -18,40 +18,61 @@ function MyProjectsPage({ showMenu }) {
   const [projects, setProjects] = useState([]);
   const [searchField, setSearchField] = useState('');
   const [open, setOpen] = useState(false);
-  const [deleteProject, setDeleteProject] = useState(false);
+  const [deleteProject, setDeleteProject] = useState('');
 
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/project/myprojects", {
           withCredentials: true
         });
-
+  
         const projects = response.data.data;
         setProjects(projects);
       } catch (error) {
         throw new Error("Problem in fetching data .." + error)
       }
-    })();
-  }, [projects]);
+    };
+  
+    fetchData(); // Fetch initial project data
+  
+    return () => {
+      // Cleanup or perform actions on component unmount if needed
+    };
+  }, [deleteProject]); 
 
   const filteredProjects = projects.filter(project =>
     project.title.toLowerCase().includes(searchField.toLowerCase())
   );
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (projectId) => {
     setOpen(true);
+    setDeleteProject(projectId);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setDeleteProject(true);
+    setDeleteProject(null);
   };
 
 
-  const deleteBtnClickHandler = () => {
-
+  const deleteBtnClickHandler = async (deleteProject) => {
     handleClose();
+    console.log(deleteProject)
+    try {
+
+      const response = await axios.post("http://localhost:5000/project/deleteproject", { deleteProjectId: deleteProject }, {
+        headers: {
+          'Content-Type' : "application/x-www-form-urlencoded"
+        },
+        withCredentials: true
+      });
+
+      console.log(response)
+
+    } catch (error) {
+      console.log("Error in deleting the project .." + error);
+    }
   }
 
   return (
@@ -80,7 +101,7 @@ function MyProjectsPage({ showMenu }) {
                   <CasesRoundedIcon /> <p className=' text-md sm:text-lg ml-4 text-white'>{project.title}</p>
                 </div>
                 <div className='flex'>
-                  <button onClick={handleClickOpen}><DeleteIcon className='mr-4' /></button>
+                  <button onClick={() => handleClickOpen(project._id)}><DeleteIcon className='mr-4' /></button>
                   <button><AddToPhotosOutlinedIcon /></button>
                 </div>
               </div>
@@ -105,7 +126,7 @@ function MyProjectsPage({ showMenu }) {
         </DialogContent>
         <DialogActions>
           <button onClick={handleClose} className='border-2 border-blue-600  rounded-md px-3 py-1 text-md hover:bg-blue-600 transform duration-200 hover:text-white'>No</button>
-          <button onClick={deleteBtnClickHandler} autoFocus className='bg-red-500 p-2 rounded-md text-white hover:bg-red-800 transform duration-200'>
+          <button onClick={() => deleteBtnClickHandler(deleteProject)} autoFocus className='bg-red-500 p-2 rounded-md text-white hover:bg-red-800 transform duration-200'>
             Delete
           </button>
         </DialogActions>
