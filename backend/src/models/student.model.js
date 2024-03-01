@@ -46,7 +46,7 @@ const studentSchema = mongoose.Schema(
         projects: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "project"
+                ref: "Project"
             }
         ],
         participatedEvents: [

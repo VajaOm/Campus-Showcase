@@ -95,9 +95,9 @@ const loginUser = asyncHandler(async (req, res) => {
         username = emailorusername;
     }
 
-    console.log("Email :: ", email);
-    console.log("username :: ", username)
-    console.log("Role :: ", role)
+    // console.log("Email :: ", email);
+    // console.log("username :: ", username)
+    // console.log("Role :: ", role)
 
     console.log("Before querying the database...");
 
@@ -143,7 +143,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
     if (role === "Faculty" && user.firstTime) {
-        console.log("first time faculty fun");
+        // console.log("first time faculty fun");
         await Faculty.updateOne({ email: user.email }, { $set: { firstLogin: false } });
 
         return res.status(201)
@@ -160,9 +160,9 @@ const loginUser = asyncHandler(async (req, res) => {
             )
 
     } else if (role === "Student" && user.firstTime) {
-        console.log("first time student fun");
+        // console.log("first time student fun");
         const x = await Student.updateOne({ email: user.email }, { $set: { firstTime: false } });
-        console.log("updated data :: ", x);
+        // console.log("updated data :: ", x);
         await user.save({ validateBeforeSave: false });
 
         if (emailorusername.includes("@gmail.com")) {
@@ -171,7 +171,7 @@ const loginUser = asyncHandler(async (req, res) => {
             user = await Student.findOne({ username: emailorusername });
         }
 
-        console.log(user)
+        // console.log(user)
 
         return res.status(201)
             .cookie("accessToken", accessToken, options)
@@ -221,11 +221,11 @@ console.log("update page rendering")
     const { _id, email, role } = req.user;
 
     let user, updatedUser;
-    console.log(req.file);
+    // console.log(req.file);
 
 
     const avatarLocalPath = req.file?.path;
-    // console.log(avatarLocalPath)
+    console.log(avatarLocalPath)
     const avatarCloudinary = await uploadOnCloudinary(avatarLocalPath, "avatars");
     // console.log(avatarCloudinary)
     if (!avatarCloudinary) {
