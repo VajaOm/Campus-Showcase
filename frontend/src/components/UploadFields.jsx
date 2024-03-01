@@ -49,15 +49,15 @@ export default function UploadFields({ label, onFileChange }) {
             </div>
             <div className='flex flex-col items-end p-4 '>
                 <label
-                    htmlFor={`select-file-btn-${label}`}
+                    htmlFor={`${label}`}
                     className='text-center text-md md:text-md  border-2 hover:text-black rounded-md  md:p-0 p-2 cursor-pointer hover:bg-[#9290C3] transform duration-200 hover:font-semibold'
                     style={{ boxSizing: 'border-box', padding: '10px' }}>
                     Select
                 </label>
                 <input
                     type="file"
-                    name={`select-file-btn-${label}`}
-                    id={`select-file-btn-${label}`}
+                    name={`${label}`}
+                    id={`${label}`}
                     className='hidden p-4'
                     onChange={handleFileInputChange}
                     multiple

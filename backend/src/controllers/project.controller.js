@@ -1,22 +1,18 @@
-
-
-
-import { Faculty } from "../models/faculty.model.js";
 import { Student } from "../models/student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Project } from "../models/project.model.js";
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
-import { upload } from "../middlewares/multer.middleware.js";
+
 
 const addProject = asyncHandler(async (req, res) => {
+    console.log("add project page ")
     const { title, description, tools, category } = req.body;
-    const { images, video, ppt, sourceCode } = req.files;
-    let user;
-    // console.log(ppt)
+    const { images, video, sourceCode, ppt } = req.files;
 
-    // console.log(title+ "/n"+ description+"/n"+tools+"/n"+category+"/n" );
+    let user;
+ 
     const { _id, role } = req.user;
 
     user = await Student.findById(_id);
@@ -24,8 +20,6 @@ const addProject = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(401, "User not found");
     }
-
-
 
     //Images uploading on the cloudinary
     const imageUploadPromises = images.map(async (image) => {
@@ -39,30 +33,36 @@ const addProject = asyncHandler(async (req, res) => {
     //video uploading on the cloudinary
     const videoUploadResult = await uploadOnCloudinary(video[0].path, "ProjectsVideos");
 
-    //PPT uploading on the cloudinary
-    const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
-
+    
     //Uploadint source code files onto the cloudinary
     console.log(sourceCode)
     const sourceCodeUploadPromises = sourceCode.map(async (sourceCode) => {
         return uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
     });
-
+    
     const sourceCodeUploadResults = await Promise.all(sourceCodeUploadPromises);
     const sourceCodeUrls = sourceCodeUploadResults.map(result => result.url);
     console.log(sourceCodeUrls)
-
-    const imgStatus = await Project.create({
-        title,
-        description,
-        tools,
-        category,
-        images: imageUrls,
-        video: videoUploadResult.url, // Uncomment this line to include the video URL
-        ppt: pptUploadResult.url,
-        sourceCode: sourceCodeUrls,
-        owner: _id
-    });
+    //PPT uploading on the cloudinary
+    const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
+    console.log("brfore")
+    try {
+        const imgStatus = await Project.create({
+            title : title,
+            description: description,
+            tools: tools,
+            category: category,
+            images: imageUrls,
+            video: videoUploadResult.url,
+            ppt: pptUploadResult.url,
+            sourceCode: sourceCodeUrls,
+            owner: _id
+        });
+    
+        console.log(imgStatus);
+    } catch (error) {
+        // console.error('Error during Project.create:', error);
+    }
 
     if (!imgStatus) {
         throw new ApiError(402, "Error in adding data into the database");

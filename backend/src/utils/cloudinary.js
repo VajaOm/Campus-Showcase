@@ -14,7 +14,7 @@ const uploadOnCloudinary = async (localfilepath, foldername) => {
         if(!localfilepath) {
             return null;
         }
-        console.log(localfilepath)
+    
 
         const response = await cloudinary.v2.uploader.upload(localfilepath, 
             { resource_type: "auto", folder: foldername }

@@ -3,12 +3,13 @@ import * as Yup from 'yup';
 import UploadFields from './UploadFields';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import topPattern from '../assets/add_project_pattern.png';
+import axios from 'axios';
 
 function AddProject({ showMenu }) {
     const [dragActive, setDragActive] = useState(false);
     const [errors, setErrors] = useState({});
     const [projectData, setProjectData] = useState({
-        projectTitle: "",
+        title: "",
         description: "",
         tools: "",
         category: ""
@@ -22,7 +23,7 @@ function AddProject({ showMenu }) {
     });
 
     const validationSchema = Yup.object({
-        projectTitle: Yup.string().required(() => (
+        title: Yup.string().required(() => (
             <span className='text-sm'>
                 <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
                 Project Title is required
@@ -78,19 +79,46 @@ function AddProject({ showMenu }) {
 
             // console.log("Project data: " + JSON.stringify(projectData));
            
+            const formData = new FormData();
+            // formData.append("images", fileData.images[0]);
+            // Append form fields
+            formData.append("title", projectData.title);
+            formData.append("description", projectData.description);
+            formData.append("tools", projectData.tools);
+            formData.append("category", projectData.category);
 
+            // Append files
+            fileData.images.forEach((image) => {
+                formData.append(`images`, image);
+            });
+    
+            fileData.video.forEach((video) => {
+                formData.append("video", video);
+            });
+    
+            fileData.sourceCode.forEach((sourceCode) => {
+                formData.append(`sourceCode`, sourceCode);
+            });
+    
+            fileData.ppt.forEach((ppt) => {
+                formData.append("ppt", ppt);
+            });
 
-            const FinalProjectData = {
-                title: projectData.projectTitle,
-                description: projectData.description,
-                tools: projectData.tools,
-                category: projectData.category,
-                images: fileData.images,
-                video: fileData.video,
-                sourceCode: fileData.sourceCode,
-                ppt: fileData.ppt
+            
+            
+            try {
+                
+                const response = await axios.post("http://localhost:5000/project/addproject", formData, {
+                    headers: {
+                        'Content-Type': "multipart/form-data"
+                    },
+                    withCredentials: true
+                });
+                console.log(response);
+
+            } catch (error) {
+                console.log("Error in adding a project ::: "+error);
             }
-            console.log(FinalProjectData)
     
         } catch (error) {
             let newErrors = {};
@@ -107,13 +135,13 @@ function AddProject({ showMenu }) {
 
         >
 
-            <form action="" onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className='w-10/12 sm:w-full md:w-full lg:w-full flex justify-center '>
+            <form action="" method='post' encType='multipart/form-data' onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className='w-10/12 sm:w-full md:w-full lg:w-full flex justify-center '>
                 <div className={`flex flex-col sm:mx-10 md:w-full sm:w-full w-full `}>
                     <p className="text-slate-100 text-2xl lg:text-3xl mt-14 2xl:text-3xl lg:mt-5 ">Add Project</p>
 
-                    <label htmlFor="projectTitle" className='text-slate-100 text-lg mt-6 lg:mt-4'>Project Title</label>
-                    <input id='projectTitle' name='projectTitle' className='rounded-md focus:outline-none mt-2 p-2 text-black text-sm' type="text" placeholder='Enter the project title' onChange={onChangeHandler} />
-                    {errors.projectTitle && <div className='text-red-500'>{errors.projectTitle}</div>}
+                    <label htmlFor="title" className='text-slate-100 text-lg mt-6 lg:mt-4'>Project Title</label>
+                    <input id='title' name='title' className='rounded-md focus:outline-none mt-2 p-2 text-black text-sm' type="text" placeholder='Enter the project title' onChange={onChangeHandler} />
+                    {errors.title && <div className='text-red-500'>{errors.title}</div>}
 
                     <label htmlFor="tools" className='text-slate-100 text-lg mt-6 lg:mt-4'>Used Technology Or Tools</label>
                     <input id='tools' name='tools' className='rounded-md focus:outline-none mt-2 p-2 text-black text-sm' type="text" placeholder='Enter the technology or tools used in the project' onChange={onChangeHandler} />
@@ -138,13 +166,13 @@ function AddProject({ showMenu }) {
                     <p className="text-slate-100 text-xl mt-6 lg:mt-4">Upload your project</p>
                     <br />
 
-                    <UploadFields label="Images" onFileChange={(files) => setFileData({ ...fileData, images: files })} />
+                    <UploadFields label="images" onFileChange={(files) => setFileData({ ...fileData, images: files })} />
                     <br />
-                    <UploadFields label="Source Code" onFileChange={(files) => setFileData({ ...fileData, sourceCode: files })} />
+                    <UploadFields label="sourceCode" onFileChange={(files) => setFileData({ ...fileData, sourceCode: files })} />
                     <br />
-                    <UploadFields label="Video" onFileChange={(files) => setFileData({ ...fileData, video: files })} />
+                    <UploadFields label="video" onFileChange={(files) => setFileData({ ...fileData, video: files })} />
                     <br />
-                    <UploadFields label="PPT" onFileChange={(files) => setFileData({ ...fileData, ppt: files })} />
+                    <UploadFields label="ppt" onFileChange={(files) => setFileData({ ...fileData, ppt: files })} />
                     <div className='flex justify-center mt-10'>
 
                         <button className='rounded-md p-2 hover:bg-[#535C91] bg-[#9290C3] text-black font-bold mb-10 w-full md:w-1/2 lg:w-2/12 transform duration-200' >Add Project</button>
