@@ -3,7 +3,7 @@ import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload 
 import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
-import { addProject } from '../controllers/project.controller.js';
+import { addProject, getMyProjects } from '../controllers/project.controller.js';
 
 
 const router = Router();
@@ -16,5 +16,6 @@ router.route("/addproject").post(veriJwt, upload.fields([
     { name: 'ppt', maxCount: 1 },
   ]),addProject);
 
+  router.route("/myprojects").get(veriJwt, getMyProjects);
 
 export default router;

@@ -12,7 +12,6 @@ function MyProjectsPage({ showMenu }) {
 
   const isMobileScreen = window.innerWidth <= 768;
 
-
   return (
     <>
       <div className='w-full flex justify-center lg:justify-start mt-8 sm:mt-0 lg:mt-8 xl:mt-0'>

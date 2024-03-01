@@ -72,7 +72,24 @@ const addProject = asyncHandler(async (req, res) => {
          new ApiResponse(200, "Project Added successfully.", imgStatus)
     )
 
-})
+});
 
+const getMyProjects = asyncHandler(async (req, res) => {
+    //get project that has the same id as req.user
 
-export { addProject };
+    const {_id} = req.user;
+
+    const projects = await Project.find({owner: _id});
+
+    console.log(projects)
+    if (!projects || projects.length === 0) {
+        return res.status(404).json(new ApiResponse(404, "There is no project"));
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Projects are fetched", projects)
+    )
+
+});
+
+export { addProject, getMyProjects };
