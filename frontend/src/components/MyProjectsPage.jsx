@@ -33,7 +33,7 @@ function MyProjectsPage({ showMenu }) {
         throw new Error("Problem in fetching data .." + error)
       }
     })();
-  }, []);
+  }, [projects]);
 
   const filteredProjects = projects.filter(project =>
     project.title.toLowerCase().includes(searchField.toLowerCase())
