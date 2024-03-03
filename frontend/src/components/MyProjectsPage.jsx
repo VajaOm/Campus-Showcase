@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import CasesRoundedIcon from '@mui/icons-material/CasesRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddToPhotosOutlinedIcon from '@mui/icons-material/AddToPhotosOutlined';
@@ -10,7 +10,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
+import {useNavigate, Link} from 'react-router-dom';
+
 
 function MyProjectsPage({ showMenu }) {
   const isMobileScreen = window.innerWidth <= 768;
@@ -19,6 +20,8 @@ function MyProjectsPage({ showMenu }) {
   const [searchField, setSearchField] = useState('');
   const [open, setOpen] = useState(false);
   const [deleteProject, setDeleteProject] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +48,7 @@ function MyProjectsPage({ showMenu }) {
     project.title.toLowerCase().includes(searchField.toLowerCase())
   );
 
-  const handleClickOpen = (projectId) => {
+  const handleDeleteClickOpen = (projectId) => {
     setOpen(true);
     setDeleteProject(projectId);
   };
@@ -75,6 +78,10 @@ function MyProjectsPage({ showMenu }) {
     }
   }
 
+  const projectContainerClickHandler = () => {
+    navigate('editproject/projectID')
+  }
+
   return (
     <>
 
@@ -96,15 +103,17 @@ function MyProjectsPage({ showMenu }) {
 
           {filteredProjects.map((project, index) => (
             <div key={index}>
-              <div className='flex mt-6 bg-[#9290C3] p-3 lg:p-4 rounded-md justify-between hover:bg-[#535C91] transform duration-200'>
+              <Link to={`editproject/${project._id}`} state={{ projectDetails: project }}>
+              <div className='flex mt-6 bg-[#9290C3] p-3 lg:p-4 rounded-md justify-between hover:bg-[#535C91] transform duration-200' >
                 <div className='flex'>
                   <CasesRoundedIcon /> <p className=' text-md sm:text-lg ml-4 text-white'>{project.title}</p>
                 </div>
                 <div className='flex'>
-                  <button onClick={() => handleClickOpen(project._id)}><DeleteIcon className='mr-4' /></button>
+                  <button onClick={(e) => {e.stopPropagation(); e.preventDefault(); handleDeleteClickOpen(project._id)}}><DeleteIcon className='mr-4' /></button>
                   <button><AddToPhotosOutlinedIcon /></button>
                 </div>
               </div>
+            </Link>
             </div>
           ))}
         </div>
