@@ -4,7 +4,9 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Project } from "../models/project.model.js";
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
-
+import fs from 'fs'
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path'
 
 const addProject = asyncHandler(async (req, res) => {
     console.log("add project page ")
@@ -12,8 +14,8 @@ const addProject = asyncHandler(async (req, res) => {
     const { images, video, sourceCode, ppt } = req.files;
 
     let user;
- 
-    const { _id, role } = req.user;
+
+    const { _id } = req.user;
 
     user = await Student.findById(_id);
 
@@ -33,43 +35,37 @@ const addProject = asyncHandler(async (req, res) => {
     //video uploading on the cloudinary
     const videoUploadResult = await uploadOnCloudinary(video[0].path, "ProjectsVideos");
 
-    
-    //Uploadint source code files onto the cloudinary
-    console.log(sourceCode)
     const sourceCodeUploadPromises = sourceCode.map(async (sourceCode) => {
         return uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
     });
     
     const sourceCodeUploadResults = await Promise.all(sourceCodeUploadPromises);
     const sourceCodeUrls = sourceCodeUploadResults.map(result => result.url);
-    console.log(sourceCodeUrls)
+
     //PPT uploading on the cloudinary
     const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
-    console.log("brfore")
-    try {
-        const imgStatus = await Project.create({
-            title : title,
-            description: description,
-            tools: tools,
-            category: category,
-            images: imageUrls,
-            video: videoUploadResult.url,
-            ppt: pptUploadResult.url,
-            sourceCode: sourceCodeUrls,
-            owner: _id
-        });
-    
-        console.log(imgStatus);
-    } catch (error) {
-        // console.error('Error during Project.create:', error);
-    }
+
+    const imgStatus = await Project.create({
+        title: title,
+        description: description,
+        tools: tools,
+        category: category,
+        images: imageUrls,
+        video: videoUploadResult.url,
+        ppt: pptUploadResult.url,
+        sourceCode: sourceCodeUrls,
+        owner: _id
+    });
+
+    console.log(imgStatus);
+
 
     if (!imgStatus) {
         throw new ApiError(402, "Error in adding data into the database");
     }
 
     res.status(201).json(
-         new ApiResponse(200, "Project Added successfully.", imgStatus)
+        new ApiResponse(200, "Project Added successfully.", imgStatus)
     )
 
 });
@@ -77,9 +73,9 @@ const addProject = asyncHandler(async (req, res) => {
 const getMyProjects = asyncHandler(async (req, res) => {
     //get project that has the same id as req.user
 
-    const {_id} = req.user;
+    const { _id } = req.user;
 
-    const projects = await Project.find({owner: _id});
+    const projects = await Project.find({ owner: _id });
 
     console.log(projects)
     if (!projects || projects.length === 0) {
@@ -92,13 +88,13 @@ const getMyProjects = asyncHandler(async (req, res) => {
 
 });
 
-const deleteProject = asyncHandler( async (req,res) => {
-    const {deleteProjectId} = req.body;
-    console.log("project id : "+ deleteProjectId)
+const deleteProject = asyncHandler(async (req, res) => {
+    const { deleteProjectId } = req.body;
+    console.log("project id : " + deleteProjectId)
 
-    const deleteStatus = await Project.deleteOne({_id : deleteProjectId});
+    const deleteStatus = await Project.deleteOne({ _id: deleteProjectId });
 
-    if(!deleteStatus) {
+    if (!deleteStatus) {
         throw new ApiError(402, "Error in deleting the project");
     }
 

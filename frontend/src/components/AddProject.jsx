@@ -71,6 +71,20 @@ function AddProject({ showMenu }) {
         }))
     }
 
+    async function readAsText(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+            reader.readAsText(file);
+        });
+    }
+
+
     const addProjectBtnHandler = async (e) => {
         e.preventDefault();
 
@@ -78,7 +92,7 @@ function AddProject({ showMenu }) {
             await validationSchema.validate(projectData, { abortEarly: false });
 
             // console.log("Project data: " + JSON.stringify(projectData));
-           
+
             const formData = new FormData();
             // formData.append("images", fileData.images[0]);
             // Append form fields
@@ -91,23 +105,43 @@ function AddProject({ showMenu }) {
             fileData.images.forEach((image) => {
                 formData.append(`images`, image);
             });
-    
+
             fileData.video.forEach((video) => {
                 formData.append("video", video);
             });
-    
-            fileData.sourceCode.forEach((sourceCode) => {
-                formData.append(`sourceCode`, sourceCode);
-            });
-    
+
+
             fileData.ppt.forEach((ppt) => {
                 formData.append("ppt", ppt);
             });
 
-            
-            
+            // Convert and source code files into text file
+            const sourceCodeUploadPromises = fileData.sourceCode.map(async (sourceCodeFile) => {
+                try {
+
+                    if (!(sourceCodeFile instanceof File)) {
+                        console.error("Invalid sourceCodeFile:", sourceCodeFile);
+                        return;
+                    }
+
+                    const codeContent = await readAsText(sourceCodeFile);
+
+                    const textFileName = `sourceCode_${Date.now()}.txt`;
+
+                    const blob = new Blob([codeContent], { type: 'text/plain' });
+                    const textFile = new File([blob], textFileName, { type: 'text/plain' });
+
+                    formData.append(`sourceCode`, textFile);
+                } catch (error) {
+                    console.error("Error processing source code file:", error);
+                    throw error; 
+                }
+            });
+
+            await Promise.all(sourceCodeUploadPromises);
+
             try {
-                
+
                 const response = await axios.post("http://localhost:5000/project/addproject", formData, {
                     headers: {
                         'Content-Type': "multipart/form-data"
@@ -117,9 +151,9 @@ function AddProject({ showMenu }) {
                 console.log(response);
 
             } catch (error) {
-                console.log("Error in adding a project ::: "+error);
+                console.log("Error in adding a project ::: " + error);
             }
-    
+
         } catch (error) {
             let newErrors = {};
             error.inner?.forEach((err) => {
