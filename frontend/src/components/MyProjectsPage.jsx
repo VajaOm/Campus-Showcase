@@ -10,7 +10,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import {useNavigate, Link} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 function MyProjectsPage({ showMenu }) {
@@ -29,20 +29,20 @@ function MyProjectsPage({ showMenu }) {
         const response = await axios.get("http://localhost:5000/project/myprojects", {
           withCredentials: true
         });
-  
+
         const projects = response.data.data;
         setProjects(projects);
       } catch (error) {
         throw new Error("Problem in fetching data .." + error)
       }
     };
-  
+
     fetchData(); // Fetch initial project data
-  
+
     return () => {
       // Cleanup or perform actions on component unmount if needed
     };
-  }, [deleteProject]); 
+  }, [deleteProject]);
 
   const filteredProjects = projects.filter(project =>
     project.title.toLowerCase().includes(searchField.toLowerCase())
@@ -66,7 +66,7 @@ function MyProjectsPage({ showMenu }) {
 
       const response = await axios.post("http://localhost:5000/project/deleteproject", { deleteProjectId: deleteProject }, {
         headers: {
-          'Content-Type' : "application/x-www-form-urlencoded"
+          'Content-Type': "application/x-www-form-urlencoded"
         },
         withCredentials: true
       });
@@ -76,10 +76,6 @@ function MyProjectsPage({ showMenu }) {
     } catch (error) {
       console.log("Error in deleting the project .." + error);
     }
-  }
-
-  const projectContainerClickHandler = () => {
-    navigate('editproject/projectID')
   }
 
   return (
@@ -96,24 +92,26 @@ function MyProjectsPage({ showMenu }) {
             onChange={(e) => setSearchField(e.target.value)}
           />
 
-          <div className='w-full h-full relative transform hover:text-4xl duration-300'>
-            <img src={isMobileScreen ? mobilePattern : imgPattern} className='w-full mt-10 rounded-lg' alt="" />
-            <h2 className='text-3xl text-black absolute transform  translate-x-5 -translate-y-12 hover:text-4xl duration-300'>New Project</h2>
-          </div>
+          <Link to="/dashboard/addproject">
+            <div className='w-full h-full relative transform hover:text-4xl duration-300'>
+              <img src={isMobileScreen ? mobilePattern : imgPattern} className='w-full mt-10 rounded-lg' alt="" />
+              <h2 className='text-3xl text-black absolute transform translate-x-5 -translate-y-12 hover:text-4xl duration-300'>New Project</h2>
+            </div>
+          </Link>
 
           {filteredProjects.map((project, index) => (
             <div key={index}>
-              <Link to={`editproject/${project._id}`} state={{ projectDetails: project }}>
-              <div className='flex mt-6 bg-[#9290C3] p-3 lg:p-4 rounded-md justify-between hover:bg-[#535C91] transform duration-200' >
-                <div className='flex'>
-                  <CasesRoundedIcon /> <p className=' text-md sm:text-lg ml-4 text-white'>{project.title}</p>
+              <Link to={`projectdetails/${project._id}`} state={{ projectDetails: project }}>
+                <div className='flex mt-6 bg-[#9290C3] p-3 lg:p-4 rounded-md justify-between hover:bg-[#535C91] transform duration-200' >
+                  <div className='flex'>
+                    <CasesRoundedIcon /> <p className=' text-md sm:text-lg ml-4 text-white'>{project.title}</p>
+                  </div>
+                  <div className='flex'>
+                    <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeleteClickOpen(project._id) }}><DeleteIcon className='mr-4' /></button>
+                    <Link to={`editproject/${project._id}`} ><AddToPhotosOutlinedIcon /></Link>
+                  </div>
                 </div>
-                <div className='flex'>
-                  <button onClick={(e) => {e.stopPropagation(); e.preventDefault(); handleDeleteClickOpen(project._id)}}><DeleteIcon className='mr-4' /></button>
-                  <button><AddToPhotosOutlinedIcon /></button>
-                </div>
-              </div>
-            </Link>
+              </Link>
             </div>
           ))}
         </div>

@@ -8,6 +8,7 @@ import EventsPage from './EventsPage';
 import StudentProfilePage from './StudentProfilePage';
 import { Routes, Route } from 'react-router-dom'
 import EditProjectPage from './EditProjectPage';
+import ProjectDetailsPage from './ProjectDetailsPage';
 
 function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
@@ -31,6 +32,7 @@ function Dashboard() {
           <Route path='events' element={<EventsPage />}></Route>
           <Route path='myprofile' element={<StudentProfilePage />}></Route>
           <Route path='myprojects/editproject/:projectId' element={<EditProjectPage />}></Route>
+          <Route path='myprojects/projectdetails/:projectId' element={<ProjectDetailsPage />}></Route>
         </Routes>
       </div>
     </div>
