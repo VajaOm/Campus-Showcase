@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Project } from "../models/project.model.js";
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import mongoose from 'mongoose'
 import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path'
@@ -103,4 +104,26 @@ const deleteProject = asyncHandler(async (req, res) => {
     )
 })
 
-export { addProject, getMyProjects, deleteProject };
+const getprojectdata = asyncHandler(async (req, res) => {
+    console.log("get project data backend")
+    const {projectId} = req.params;
+
+    try {
+        const id = new mongoose.Types.ObjectId(projectId);
+    
+        const project = await Project.findById({_id : id});
+    } catch (error) {
+        throw new ApiError(403, "Project Id is wrong")
+    }
+
+    if(!project) {
+        throw new ApiError(404,"Project not found");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Project Found", project)
+    )
+    
+});
+
+export { addProject, getMyProjects, deleteProject, getprojectdata };

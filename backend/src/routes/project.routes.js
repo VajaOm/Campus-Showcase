@@ -3,7 +3,7 @@ import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload 
 import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
-import { addProject, deleteProject, getMyProjects } from '../controllers/project.controller.js';
+import { addProject, deleteProject, getMyProjects, getprojectdata } from '../controllers/project.controller.js';
 
 
 const router = Router();
@@ -19,5 +19,8 @@ router.route("/addproject").post(veriJwt, upload.fields([
   router.route("/myprojects").get(veriJwt, getMyProjects);
 
   router.route("/deleteproject").post(veriJwt, deleteProject);
+
+
+  router.route("/getprojectdata/:projectId").get(veriJwt, getprojectdata);
 
 export default router;
