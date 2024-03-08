@@ -72,6 +72,9 @@ function MyProjectsPage({ showMenu }) {
       });
 
       console.log(response)
+      setProjects((prevProjects) =>
+      prevProjects.filter((project) => project._id !== deleteProject)
+    );
 
     } catch (error) {
       console.log("Error in deleting the project .." + error);

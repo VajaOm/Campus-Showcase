@@ -44,15 +44,15 @@ const addProject = asyncHandler(async (req, res) => {
     const sourceCodeUploadPromises = sourceCode.map(async (sourceCode) => {
         const uploadResult = await uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
         console.log(uploadResult)
-        return {fileName: sourceCode.originalname, fileUrl: uploadResult.url}
+        return { fileName: sourceCode.originalname, fileUrl: uploadResult.url }
     });
 
     const sourceCodeUploadResults = await Promise.all(sourceCodeUploadPromises);
 
     //PPT uploading on the cloudinary
     const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
-    const pptInfo = {fileName: ppt[0].originalname, fileUrl: pptUploadResult.url}
-    
+    const pptInfo = { fileName: ppt[0].originalname, fileUrl: pptUploadResult.url }
+
     try {
         const imgStatus = await Project.create({
             title: title,
@@ -65,15 +65,20 @@ const addProject = asyncHandler(async (req, res) => {
             sourceCode: sourceCodeUploadResults,
             owner: _id
         });
-        
-            if (!imgStatus) {
-                throw new ApiError(402, "Error in adding data into the database");
-            }
-            console.log("before response")
-            res.status(201).json(
-                new ApiResponse(200, "Project Added successfully.", imgStatus)
-            )
-            console.log(imgStatus);
+
+        if (!imgStatus) {
+            throw new ApiError(402, "Error in adding data into the database");
+        }
+
+        //addition of project into Student schema
+        user.projects = imgStatus._id;
+        user.save();
+
+        console.log(imgStatus)
+        res.status(201).json(
+            new ApiResponse(200, "Project Added successfully.", imgStatus)
+        )
+        console.log(imgStatus);
     } catch (error) {
         console.log("Error in .... " + error)
     }
@@ -102,18 +107,36 @@ const getMyProjects = asyncHandler(async (req, res) => {
 
 const deleteProject = asyncHandler(async (req, res) => {
     const { deleteProjectId } = req.body;
-    console.log("project id : " + deleteProjectId)
+    const { _id: userId } = req.user;
 
-    const deleteStatus = await Project.deleteOne({ _id: deleteProjectId });
+    try {
+        // Use updateOne to remove the project ID from the user's projects array
+        const updateResult = await Student.updateOne({ _id: userId }, { $pull: { projects: deleteProjectId } });
 
-    if (!deleteStatus) {
-        throw new ApiError(402, "Error in deleting the project");
+        // Check if the update was successful
+        if (updateResult.nModified === 0) {
+            throw new ApiError(404, "Project not found in user's projects");
+        }
+
+        console.log("Deleting the project id from user: " + userId);
+
+        // Delete the project from the Project collection
+        const deleteStatus = await Project.deleteOne({ _id: deleteProjectId });
+
+        if (!deleteStatus) {
+            throw new ApiError(402, "Error in deleting the project");
+        }
+
+        res.status(200).json(
+            new ApiResponse(200, "Deletion of project successful", deleteStatus)
+        );
+    } catch (error) {
+        console.log(error);
+        res.status(error.statusCode || 500).json(
+            new ApiResponse(error.statusCode || 500, error.message, null)
+        );
     }
-
-    res.status(200).json(
-        new ApiResponse(200, "Deletion of project successfull", deleteStatus)
-    )
-})
+});
 
 const getprojectdata = asyncHandler(async (req, res) => {
     console.log("get project data backend")
@@ -123,17 +146,17 @@ const getprojectdata = asyncHandler(async (req, res) => {
         const id = new mongoose.Types.ObjectId(projectId);
 
         const project = await Project.findById({ _id: id });
+        if (!project) {
+            throw new ApiError(404, "Project not found");
+        }
+
+        res.status(200).json(
+            new ApiResponse(200, "Project Found", project)
+        )
     } catch (error) {
         throw new ApiError(403, "Project Id is wrong")
     }
 
-    if (!project) {
-        throw new ApiError(404, "Project not found");
-    }
-
-    res.status(200).json(
-        new ApiResponse(200, "Project Found", project)
-    )
 
 });
 
