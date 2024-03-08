@@ -13,7 +13,7 @@ const addProject = asyncHandler(async (req, res) => {
     console.log("add project page ")
     const { title, description, tools, category } = req.body;
     const { images, video, sourceCode, ppt } = req.files;
-
+    console.log(video)
     let user;
 
     const { _id } = req.user;
@@ -26,48 +26,59 @@ const addProject = asyncHandler(async (req, res) => {
 
     //Images uploading on the cloudinary
     const imageUploadPromises = images.map(async (image) => {
-        return uploadOnCloudinary(image.path, "ProjectsImages");
+        const uploadResult = await uploadOnCloudinary(image.path, "ProjectsImages");
+        console.log(uploadResult)
+        return { fileName: image.originalname, fileUrl: uploadResult.url };
     });
 
     const imageUploadResults = await Promise.all(imageUploadPromises);
-    const imageUrls = imageUploadResults.map(result => result.url);
 
 
     //video uploading on the cloudinary
     const videoUploadResult = await uploadOnCloudinary(video[0].path, "ProjectsVideos");
 
+    const videoInfo = { fileName: video[0].originalname, fileUrl: videoUploadResult.url }
+
+    // console.log(videoInfo)
+
     const sourceCodeUploadPromises = sourceCode.map(async (sourceCode) => {
-        return uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
+        const uploadResult = await uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
+        console.log(uploadResult)
+        return {fileName: sourceCode.originalname, fileUrl: uploadResult.url}
     });
-    
+
     const sourceCodeUploadResults = await Promise.all(sourceCodeUploadPromises);
-    const sourceCodeUrls = sourceCodeUploadResults.map(result => result.url);
 
     //PPT uploading on the cloudinary
     const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
-
-    const imgStatus = await Project.create({
-        title: title,
-        description: description,
-        tools: tools,
-        category: category,
-        images: imageUrls,
-        video: videoUploadResult.url,
-        ppt: pptUploadResult.url,
-        sourceCode: sourceCodeUrls,
-        owner: _id
-    });
-
-    console.log(imgStatus);
-
-
-    if (!imgStatus) {
-        throw new ApiError(402, "Error in adding data into the database");
+    const pptInfo = {fileName: ppt[0].originalname, fileUrl: pptUploadResult.url}
+    
+    try {
+        const imgStatus = await Project.create({
+            title: title,
+            description: description,
+            tools: tools,
+            category: category,
+            images: imageUploadResults,
+            video: videoInfo,
+            ppt: pptInfo,
+            sourceCode: sourceCodeUploadResults,
+            owner: _id
+        });
+        
+            if (!imgStatus) {
+                throw new ApiError(402, "Error in adding data into the database");
+            }
+            console.log("before response")
+            res.status(201).json(
+                new ApiResponse(200, "Project Added successfully.", imgStatus)
+            )
+            console.log(imgStatus);
+    } catch (error) {
+        console.log("Error in .... " + error)
     }
 
-    res.status(201).json(
-        new ApiResponse(200, "Project Added successfully.", imgStatus)
-    )
+
 
 });
 
@@ -106,24 +117,24 @@ const deleteProject = asyncHandler(async (req, res) => {
 
 const getprojectdata = asyncHandler(async (req, res) => {
     console.log("get project data backend")
-    const {projectId} = req.params;
+    const { projectId } = req.params;
 
     try {
         const id = new mongoose.Types.ObjectId(projectId);
-    
-        const project = await Project.findById({_id : id});
+
+        const project = await Project.findById({ _id: id });
     } catch (error) {
         throw new ApiError(403, "Project Id is wrong")
     }
 
-    if(!project) {
-        throw new ApiError(404,"Project not found");
+    if (!project) {
+        throw new ApiError(404, "Project not found");
     }
 
     res.status(200).json(
         new ApiResponse(200, "Project Found", project)
     )
-    
+
 });
 
 export { addProject, getMyProjects, deleteProject, getprojectdata };

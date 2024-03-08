@@ -24,20 +24,50 @@ const projectSchema = mongoose.Schema({
     },
     images : [
         {
-            type: String
+            fileName: {
+                type: String,
+                required: true
+            },
+            fileUrl: {
+                type: String,
+                required: true
+            }
         }
     ],
-    video: {
-        type: String
-    },
+    video: 
+        {
+            fileName: {
+                type: String,
+                required: true
+            },
+            fileUrl: {
+                type: String,
+                required: true
+            }
+        }
+    ,
     sourceCode: [
         {
-            type: String
+            fileName: {
+                type: String,
+                required: true
+            },
+            fileUrl: {
+                type: String,
+                required: true
+             }
         }
     ],
     ppt: 
         {
-            type: String
+            fileName: {
+                type: String,
+                required: true
+            },
+            fileUrl: {
+                type: String,
+                required: true
+            }
         }
     ,
     owner:
