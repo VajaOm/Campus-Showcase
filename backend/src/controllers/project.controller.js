@@ -71,8 +71,8 @@ const addProject = asyncHandler(async (req, res) => {
         }
 
         //addition of project into Student schema
-        user.projects = imgStatus._id;
-        user.save();
+        user.projects.push(imgStatus._id)
+        await user.save();
 
         console.log(imgStatus)
         res.status(201).json(

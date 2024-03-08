@@ -4,6 +4,7 @@ import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
 import { addProject, deleteProject, getMyProjects, getprojectdata } from '../controllers/project.controller.js';
+import {projectOwnerValidate} from '../middlewares/projectOwnershipValidation.middleware.js';
 
 
 const router = Router();
@@ -21,6 +22,6 @@ router.route("/addproject").post(veriJwt, upload.fields([
   router.route("/deleteproject").post(veriJwt, deleteProject);
 
 
-  router.route("/getprojectdata/:projectId").get(veriJwt, getprojectdata);
+  router.route("/getprojectdata/:projectId").get(veriJwt, projectOwnerValidate, getprojectdata);
 
 export default router;
