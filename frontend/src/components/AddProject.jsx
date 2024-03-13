@@ -126,7 +126,7 @@ function AddProject({ showMenu }) {
 
                     const codeContent = await readAsText(sourceCodeFile);
 
-                    const textFileName = `sourceCode_${Date.now()}.txt`;
+                    const textFileName = `${sourceCodeFile.name}`;
 
                     const blob = new Blob([codeContent], { type: 'text/plain' });
                     const textFile = new File([blob], textFileName, { type: 'text/plain' });
