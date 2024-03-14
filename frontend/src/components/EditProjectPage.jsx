@@ -4,7 +4,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CloseIcon from '@mui/icons-material/Close';
-
+import * as Yup from 'yup';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 export default function EditProjectPage() {
   const { projectId } = useParams();
@@ -22,6 +23,7 @@ export default function EditProjectPage() {
     sourcecode: [],
     ppt: {}
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +61,8 @@ export default function EditProjectPage() {
       setProjectData((prevData) => ({
         ...prevData,
         [name]: value
-      }))
+      }));
+
     }
 
     else {
@@ -71,33 +74,98 @@ export default function EditProjectPage() {
   }
 
   const handleMultipleFileDelete = async (name, index) => {
+
     if (name === "video" || name === "ppt") {
-
-      setProjectData((prev) => ({
-        ...prev,
-        [name]: null
-      }))
-    }
-
-    else {
 
       try {
         let response;
+        if (name === "video") {
+          if (!(projectData.video instanceof File)) {
+            response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteVideo`, {
+              withCredentials: true
+            });
+          }
+          else {
+            setProjectData((prev) => ({
+              ...prev,
+              [name]: null
+            }))
+            setSelectedVideo(null)
+          }
+
+
+        }
+
+        else if (name === "ppt") {
+          if (!(projectData.ppt instanceof File)) {
+            response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deletePpt`, {
+              withCredentials: true
+            });
+          }
+          else {
+            setProjectData((prev) => ({
+              ...prev,
+              [name]: null
+            }))
+            setSelectedPpt(null)
+          }
+        }
+
+        if (name === "video") setSelectedVideo(null);
+        else if (name === "ppt") setSelectedPpt(null);
+
+        if (response?.status === 200) {
+          setProjectData((prev) => ({
+            ...prev,
+            [name]: null
+          }))
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    else {
+      try {
+        let response;
+
         if (name === "images") {
-          response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteImage/${index}`, {
-            withCredentials: true
-          });
+          if (!(projectData.images[index] instanceof File)) {
+            response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteImage/${index}`, {
+              withCredentials: true
+            });
+          }
+
+          else {
+            const updatedData = [...projectData[name]];
+            updatedData.splice(index, 1);
+            setProjectData((prevData) => ({
+              ...prevData,
+              [name]: updatedData
+            }));
+          }
         }
 
-        else {
-          response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteSourcecode/${index}`, {
-            withCredentials: true
-          });
+        else if (name === "sourcecode") {
+          if (!(projectData.sourcecode[index] instanceof File)) {
+            response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteSourcecode/${index}`, {
+              withCredentials: true
+            });
+          }
+          else {
+            const updatedData = [...projectData[name]];
+            updatedData.splice(index, 1);
+            setProjectData((prevData) => ({
+              ...prevData,
+              [name]: updatedData
+            }));
+          }
         }
 
-        console.log(response);
+        if (name === "images") setSelectedImage(null);
+        else if (name === "sourcecode") setSelectedSourcecode(null);
 
-        if (response.status === 200) {
+        if (response?.status === 200) {
           const updatedData = [...projectData[name]];
           updatedData.splice(index, 1);
           setProjectData((prevData) => ({
@@ -106,8 +174,9 @@ export default function EditProjectPage() {
           }));
         }
 
-      } catch (error) {
-        console.log("Error in deleting the image..." + error);
+      }
+      catch (e) {
+        console.log(e)
       }
     }
 
@@ -155,18 +224,56 @@ export default function EditProjectPage() {
     }));
   }
 
-  const updateBtnClickHandler = (e) => {
+  // validation
+  const validationSchema = Yup.object({
+    title: Yup.string().required(() => (
+      <span className='text-sm'>
+        <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+        Project Title is required
+      </span>
+    )),
+    description: Yup.string().required(() => (
+      <span className='text-sm'>
+        <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+        Project Description is required
+      </span>
+    )),
+    tools: Yup.string().required(() => (
+      <span className='text-sm'>
+        <InfoOutlinedIcon style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+        Technology is required
+      </span>
+    ))
+  });
+
+
+  const updateBtnClickHandler = async (e) => {
     e.preventDefault();
 
-    const newData = {
-      ...projectData,
-      images: projectData.images.filter(image => image instanceof File),
-      sourcecode: projectData.sourcecode.filter(file => file instanceof File),
-      video: projectData.video instanceof File ? projectData.video : null,
-      ppt: projectData.ppt instanceof File ? projectData.ppt : null
-    };
+    try {
+      await validationSchema.validate(projectData, { abortEarly: false });
 
+      const newData = {
+        ...projectData,
+        images: projectData.images.filter(image => image instanceof File),
+        sourcecode: projectData.sourcecode.filter(file => file instanceof File),
+        video: projectData.video instanceof File ? projectData.video : null,
+        ppt: projectData.ppt instanceof File ? projectData.ppt : null
+      };
+    } catch (error) {
+      let newErrors = {};
+      error.inner?.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors); // Update the errors state with the new errors object
+    }
   }
+
+  useEffect(() => {
+    console.log(errors)
+  }, [projectData])
+
+
 
   return (
     <div className={`mt-14 w-full flex flex-col ${selectedImage} relative md:text-lg`}>
@@ -174,26 +281,43 @@ export default function EditProjectPage() {
 
       <div className='flex flex-col ml-5 lg:ml-0'>
         <div className='w-11/12 flex flex-col items-center mt-10 gap-y-6 lg:gap-y-8'>
-          <div className='w-full flex justify-between '>
-            <label htmlFor="title">Project Title : </label>
-            <input type="text" value={projectData.title} className='w-3/5 border-b-2 border-white bg-[#070F2B] px-1 focus:outline-none' onChange={(e) => inputChangeHandler("title", e.target.value)} />
+          <div className='w-full flex flex-col '>
+            <div className='flex justify-between'>
+              <label htmlFor="title">Project Title : </label>
+              <input type="text" name='title' id='title' value={projectData.title} className='w-3/5 border-b-2 border-white bg-[#070F2B] px-1 focus:outline-none' onChange={(e) => inputChangeHandler("title", e.target.value)} />
+            </div>
+            <div className='w-11/12 md:w-9/12 lg:w-3/5 flex justify-end xl:w-11/12 xl:justify-center'>
+              {projectData.title ? '' : errors.title && <div className='text-red-500'>{errors.title}</div>}
+            </div>
           </div>
-          <div className='w-full flex justify-between'>
-            <label htmlFor="tools ">Technology : </label>
-            <input id='tools' name='tools' className='w-3/5 border-b-2 border-white bg-[#070F2B] px-1 focus:outline-none' value={projectData.tools} onChange={(e) => inputChangeHandler("tools", e.target.value)} />
+          <div className='w-full flex flex-col'>
+            <div className='flex justify-between'>
+              <label htmlFor="tools ">Technology : </label>
+              <input id='tools' name='tools' className='w-3/5 border-b-2 border-white bg-[#070F2B] px-1 focus:outline-none' value={projectData.tools} onChange={(e) => inputChangeHandler("tools", e.target.value)} />
+            </div>
+            <div className='w-11/12 md:w-9/12 lg:w-3/5 xl:w-11/12 xl:justify-center flex justify-end '>
+              {projectData.tools ? '' : errors.tools && <div className='text-red-500'>{errors.tools}</div>}
+            </div>
+
           </div>
           <div className='w-full flex flex-col '>
-            <label htmlFor="title">Description : </label>
-            <textarea
-              name="description"
-              id="description"
-              className='resize-none mt-2 min-h-[7rem] focus:outline-none  text-sm md:text-md lg:text-lg text-justify bg-[#0a1640] rounded-md p-4'
-              cols="25"
-              rows="fit"
-              placeholder='Tell us about your project'
-              value={projectData.description}
-              onChange={(e) => inputChangeHandler("description", e.target.value)}
-            ></textarea>
+            <div className='flex flex-col'>
+
+              <label htmlFor="title">Description : </label>
+              <textarea
+                name="description"
+                id="description"
+                className='resize-none mt-2 min-h-[7rem] focus:outline-none  text-sm md:text-md lg:text-lg text-justify bg-[#0a1640] rounded-md p-4'
+                cols="25"
+                rows="fit"
+                placeholder='Tell us about your project'
+                value={projectData.description}
+                onChange={(e) => inputChangeHandler("description", e.target.value)}
+              ></textarea>
+            </div>
+            <div className='flex '>
+              {projectData.description ? '' : errors.description && <div className='text-red-500'>{errors.description}</div>}
+            </div>
           </div>
           <div className='w-full flex justify-between'>
             <label htmlFor="title">Category : </label>

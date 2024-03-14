@@ -162,16 +162,16 @@ const getprojectdata = asyncHandler(async (req, res) => {
 
 const deleteImage = asyncHandler(async (req, res) => {
     console.log("delete image backend");
-    const {index, projectId} = req.params;
+    const { index, projectId } = req.params;
 
 
     const project = await Project.findById(projectId);
 
-    if(!project) {
-        throw new ApiError(404,"Project not found");
+    if (!project) {
+        throw new ApiError(404, "Project not found");
     }
 
-    if(index<0 || index > project.images.length) {
+    if (index < 0 || index > project.images.length) {
         throw new ApiError(400, "Invalid image index")
     }
 
@@ -186,16 +186,16 @@ const deleteImage = asyncHandler(async (req, res) => {
 
 const deleteSourcecode = asyncHandler(async (req, res) => {
     console.log("delete sourcecode backend");
-    const {index, projectId} = req.params;
+    const { index, projectId } = req.params;
 
 
     const project = await Project.findById(projectId);
 
-    if(!project) {
-        throw new ApiError(404,"Project not found");
+    if (!project) {
+        throw new ApiError(404, "Project not found");
     }
 
-    if(index<0 || index > project.sourceCode.length) {
+    if (index < 0 || index > project.sourceCode.length) {
         throw new ApiError(400, "Invalid source code index")
     }
 
@@ -208,5 +208,34 @@ const deleteSourcecode = asyncHandler(async (req, res) => {
     )
 })
 
+const deleteVideo = asyncHandler(async (req, res) => {
+    console.log("delete video backend");
+    const { projectId } = req.params;
 
-export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode };
+    const x = await Project.updateOne({ _id: projectId }, { $unset: { video: 1 } })
+
+    if(!x) {
+        throw new ApiError(402, "Problem in deletion of video.")
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Video deletion successfull.")
+    )
+})
+
+const deletePpt = asyncHandler(async (req, res) => {
+    console.log("delete ppt backend");
+    const { projectId } = req.params;
+
+    const x = await Project.updateOne({ _id: projectId }, { $unset: { ppt: 1 } })
+
+    if(!x) {
+        throw new ApiError(402, "Problem in deletion of ppt.")
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Ppt deletion successfull.")
+    )
+})
+
+export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt };
