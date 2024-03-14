@@ -70,7 +70,7 @@ export default function EditProjectPage() {
     }
   }
 
-  const handleMultipleFileDelete = (name, index) => {
+  const handleMultipleFileDelete = async (name, index) => {
     if (name === "video" || name === "ppt") {
 
       setProjectData((prev) => ({
@@ -80,12 +80,27 @@ export default function EditProjectPage() {
     }
 
     else {
-      const updatedData = [...projectData[name]];
-      updatedData.splice(index, 1);
-      setProjectData((prevData) => ({
-        ...prevData,
-        [name]: updatedData
-      }));
+
+      try {
+
+        const response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteImage/${index}`, {
+          withCredentials: true
+        });
+
+        console.log(response);
+        
+        if(response.status === 200) {
+          const updatedData = [...projectData[name]];
+          updatedData.splice(index, 1);
+          setProjectData((prevData) => ({
+            ...prevData,
+            [name]: updatedData
+          }));
+        }
+
+      } catch (error) {
+        console.log("Error in deleting the image..."+error);
+      }
     }
 
   };
@@ -134,7 +149,7 @@ export default function EditProjectPage() {
 
   const updateBtnClickHandler = (e) => {
     e.preventDefault();
-  
+
     const newData = {
       ...projectData,
       images: projectData.images.filter(image => image instanceof File),
@@ -142,7 +157,7 @@ export default function EditProjectPage() {
       video: projectData.video instanceof File ? projectData.video : null,
       ppt: projectData.ppt instanceof File ? projectData.ppt : null
     };
-  
+
   }
 
   return (
@@ -196,8 +211,8 @@ export default function EditProjectPage() {
 
               <div className='border-2 border-white border-dotted w-full flex flex-col  p-2 '>
                 {projectData.images.map((image, index) => (
-                  <div className='flex flex-col w-full items-center'>
-                    <div key={index} className='flex w-full '>
+                  <div className='flex flex-col w-full items-center' key={index}>
+                    <div className='flex w-full '>
                       <div className='table-cell w-5/6 py-2 '>
                         <h1 className='text-white' onClick={() => setSelectedImage(index)}>
                           {image.fileName ? image.fileName : image.name}
@@ -304,37 +319,37 @@ export default function EditProjectPage() {
           <div className='w-full flex flex-col justify-around'>
             <label htmlFor="title">Source code : </label>
             {projectData.sourcecode.length > 0 ? (
-              <div className='w-full border-2 border-white border-dotted p-2 flex flex-col' >
+              <div className='w-full border-2 border-white border-dotted p-2 flex flex-col'>
                 {projectData.sourcecode.map((file, index) => (
-                  <>
-                    <div key={index} className='w-full flex '>
-                      <div className='table-cell w-5/6 py-2'>
-                        <h1 className='text-white ' onClick={() => handleSourceCodeClick(index)}>
-                          {file.fileName ? file.fileName : file.name}
-                        </h1>
+                  <div key={index}>
+                  <div className='w-full flex' >
+                    <div className='table-cell w-5/6 py-2'>
+                      <h1 className='text-white ' onClick={() => handleSourceCodeClick(index)}>
+                        {file.fileName ? file.fileName : file.name}
+                      </h1>
+                    </div>
+                    <div className='table-cell w-2/12 py-2'>
+                      <HighlightOffIcon onClick={() => handleMultipleFileDelete("sourcecode", index)} />
+                    </div>
+                  </div>
+        {/* Display selected source code content */ }
+        { selectedSourcecode === index && (
+                    <div className='h-1/2'>
+                      <div className='flex justify-between bg-[#535C91] p-2 rounded-t-md '>
+                        <h1>{projectData.sourcecode[selectedSourcecode].fileName}</h1>
+                        <CloseIcon onClick={() => setSelectedSourcecode(null)} />
                       </div>
-                      <div className='table-cell w-2/12 py-2'>
-                        <HighlightOffIcon onClick={() => handleMultipleFileDelete("sourcecode", index)} />
+                      <div className='bg-black text-white p-4 rounded-md overflow-auto h-[50vh]'>
+                        <pre>
+                          <code className='text-sm md:text-md'>
+                            {selectedSourceCodeContent}
+                          </code>
+                        </pre>
                       </div>
                     </div>
-                    {/* Display selected source code content */}
-                    {selectedSourcecode === index && (
-                      <div className='h-1/2'>
-                        <div className='flex justify-between bg-[#535C91] p-2 rounded-t-md '>
-                          <h1>{projectData.sourcecode[selectedSourcecode].fileName}</h1>
-                          <CloseIcon onClick={() => setSelectedSourcecode(null)} />
-                        </div>
-                        <div className='bg-black text-white p-4 rounded-md overflow-auto h-[50vh]'>
-                          <pre>
-                            <code className='text-sm md:text-md'>
-                              {selectedSourceCodeContent}
-                            </code>
-                          </pre>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ))}
+                  )}
+                  </div>
+      ))}
               </div>
             ) : (
               <div className='text-center border-2 border-white rounded-md p-2'>No file yet</div>
@@ -342,7 +357,7 @@ export default function EditProjectPage() {
             <div className='flex flex-col items-end p-4'>
               <label
                 htmlFor="sourceInput"
-                className=' p-2 w-1/5 text-white border-2 border-white text-center rounded-md mt-5 hover:bg-[#9290C3] hover:text-black hover:font-semibold transform duration-200'>
+                className='p-2 w-1/5 text-white border-2 border-white text-center rounded-md mt-5 hover:bg-[#9290C3] hover:text-black hover:font-semibold transform duration-200'>
                 Select
               </label>
               <input
@@ -350,7 +365,6 @@ export default function EditProjectPage() {
                 id="sourceInput"
                 className='hidden'
                 onChange={(e) => handleMultipleFileChange("sourcecode", e.target.files[0])}
-
               />
             </div>
           </div>
@@ -389,8 +403,6 @@ export default function EditProjectPage() {
               />
             </div>
           </div>
-
-
 
         </div>
 
