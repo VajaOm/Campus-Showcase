@@ -82,14 +82,22 @@ export default function EditProjectPage() {
     else {
 
       try {
+        let response;
+        if (name === "images") {
+          response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteImage/${index}`, {
+            withCredentials: true
+          });
+        }
 
-        const response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteImage/${index}`, {
-          withCredentials: true
-        });
+        else {
+          response = await axios.delete(`http://localhost:5000/project/getprojectdata/${projectId}/deleteSourcecode/${index}`, {
+            withCredentials: true
+          });
+        }
 
         console.log(response);
-        
-        if(response.status === 200) {
+
+        if (response.status === 200) {
           const updatedData = [...projectData[name]];
           updatedData.splice(index, 1);
           setProjectData((prevData) => ({
@@ -99,7 +107,7 @@ export default function EditProjectPage() {
         }
 
       } catch (error) {
-        console.log("Error in deleting the image..."+error);
+        console.log("Error in deleting the image..." + error);
       }
     }
 
@@ -322,34 +330,34 @@ export default function EditProjectPage() {
               <div className='w-full border-2 border-white border-dotted p-2 flex flex-col'>
                 {projectData.sourcecode.map((file, index) => (
                   <div key={index}>
-                  <div className='w-full flex' >
-                    <div className='table-cell w-5/6 py-2'>
-                      <h1 className='text-white ' onClick={() => handleSourceCodeClick(index)}>
-                        {file.fileName ? file.fileName : file.name}
-                      </h1>
-                    </div>
-                    <div className='table-cell w-2/12 py-2'>
-                      <HighlightOffIcon onClick={() => handleMultipleFileDelete("sourcecode", index)} />
-                    </div>
-                  </div>
-        {/* Display selected source code content */ }
-        { selectedSourcecode === index && (
-                    <div className='h-1/2'>
-                      <div className='flex justify-between bg-[#535C91] p-2 rounded-t-md '>
-                        <h1>{projectData.sourcecode[selectedSourcecode].fileName}</h1>
-                        <CloseIcon onClick={() => setSelectedSourcecode(null)} />
+                    <div className='w-full flex' >
+                      <div className='table-cell w-5/6 py-2'>
+                        <h1 className='text-white ' onClick={() => handleSourceCodeClick(index)}>
+                          {file.fileName ? file.fileName : file.name}
+                        </h1>
                       </div>
-                      <div className='bg-black text-white p-4 rounded-md overflow-auto h-[50vh]'>
-                        <pre>
-                          <code className='text-sm md:text-md'>
-                            {selectedSourceCodeContent}
-                          </code>
-                        </pre>
+                      <div className='table-cell w-2/12 py-2'>
+                        <HighlightOffIcon onClick={() => handleMultipleFileDelete("sourcecode", index)} />
                       </div>
                     </div>
-                  )}
+                    {/* Display selected source code content */}
+                    {selectedSourcecode === index && (
+                      <div className='h-1/2'>
+                        <div className='flex justify-between bg-[#535C91] p-2 rounded-t-md '>
+                          <h1>{projectData.sourcecode[selectedSourcecode].fileName}</h1>
+                          <CloseIcon onClick={() => setSelectedSourcecode(null)} />
+                        </div>
+                        <div className='bg-black text-white p-4 rounded-md overflow-auto h-[50vh]'>
+                          <pre>
+                            <code className='text-sm md:text-md'>
+                              {selectedSourceCodeContent}
+                            </code>
+                          </pre>
+                        </div>
+                      </div>
+                    )}
                   </div>
-      ))}
+                ))}
               </div>
             ) : (
               <div className='text-center border-2 border-white rounded-md p-2'>No file yet</div>

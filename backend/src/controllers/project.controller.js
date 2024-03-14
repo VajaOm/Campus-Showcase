@@ -184,4 +184,29 @@ const deleteImage = asyncHandler(async (req, res) => {
     )
 })
 
-export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage };
+const deleteSourcecode = asyncHandler(async (req, res) => {
+    console.log("delete sourcecode backend");
+    const {index, projectId} = req.params;
+
+
+    const project = await Project.findById(projectId);
+
+    if(!project) {
+        throw new ApiError(404,"Project not found");
+    }
+
+    if(index<0 || index > project.sourceCode.length) {
+        throw new ApiError(400, "Invalid source code index")
+    }
+
+    project.sourceCode.splice(index, 1);
+
+    await project.save();
+
+    res.status(200).json(
+        new ApiResponse(200, "Source code deletion successfull.")
+    )
+})
+
+
+export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode };
