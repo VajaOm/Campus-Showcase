@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -24,6 +24,7 @@ export default function EditProjectPage() {
     ppt: {}
   });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,9 +67,10 @@ export default function EditProjectPage() {
     }
 
     else {
+      let fileArray = value instanceof FileList ? Array.from(value) : [value];
       setProjectData((prevData) => ({
         ...prevData,
-        [name]: [...prevData[name], value]
+        [name]: [...prevData[name], ...fileArray]
       }));
     }
   }
@@ -263,22 +265,33 @@ export default function EditProjectPage() {
   const updateBtnClickHandler = async (e) => {
     e.preventDefault();
 
+    const formData = new FormData();
+    formData.append('title', projectData.title);
+    formData.append('tools', projectData.tools);
+    formData.append('description', projectData.description);
+    formData.append('category', projectData.category);
+
+    let c = projectData.images.filter(image => image instanceof File)
+
+    c.forEach(file => formData.append("images", file))
+
+
+    if (projectData.video instanceof File) {
+      formData.append('video', projectData.video);
+    }
+
+    if (projectData.ppt instanceof File) {
+      formData.append('ppt', projectData.ppt);
+    }
+
+
     try {
       await validationSchema.validate(projectData, { abortEarly: false });
 
-      const newData = {
-        ...projectData,
-        images: projectData.images.filter(image => image instanceof File),
-        video: projectData.video instanceof File ? projectData.video : null,
-        ppt: projectData.ppt instanceof File ? projectData.ppt : null
-      };
-
-
-      const sourceCodeUploadPromises = newData.sourcecode.map(async (sourceCodeFile) => {
+      const sourceCodeUploadPromises = projectData.sourcecode.map(async (sourceCodeFile) => {
         try {
 
           if (!(sourceCodeFile instanceof File)) {
-            console.error("Invalid sourceCodeFile:", sourceCodeFile);
             return;
           }
 
@@ -290,7 +303,7 @@ export default function EditProjectPage() {
           const textFile = new File([blob], textFileName, { type: 'text/plain' });
 
 
-          return textFile;
+          formData.append("sourcecode", textFile)
 
         } catch (error) {
           console.error("Error processing source code file:", error);
@@ -298,23 +311,40 @@ export default function EditProjectPage() {
         }
       });
 
-      newData.sourcecode = await Promise.all(sourceCodeUploadPromises);
+      await Promise.all(sourceCodeUploadPromises);
+      formData.getAll('sourcecode').forEach((file, index) => {
+        console.log(`File ${index + 1}:`);
+        console.log('Name:', file.name);
+        console.log('Size:', file.size);
+        console.log('Type:', file.type);
+        // You can perform other operations on the 'file' object as needed
+      });
 
-      console.log(newData)
+      const response = await axios.put(`http://localhost:5000/project/getprojectdata/${projectId}/updateProject`, formData, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': "multipart/form-data"
+        },
+        withCredentials: true
+      });
+
+      console.log(response)
+      if (response.status === 200) {
+        navigate("/dashboard/myprojects")
+        console.log('Project updated successfully');
+      } else {
+        console.error('Failed to update project');
+      }
+
+
     } catch (error) {
       let newErrors = {};
       error.inner?.forEach((err) => {
         newErrors[err.path] = err.message;
       });
-      setErrors(newErrors); // Update the errors state with the new errors object
+      setErrors(newErrors);
     }
   }
-
-  // useEffect(() => {
-  //   console.log(errors)
-  // }, [projectData])
-
-
 
   return (
     <div className={`mt-14 w-full flex flex-col ${selectedImage} relative md:text-lg`}>
@@ -429,8 +459,9 @@ export default function EditProjectPage() {
                 type="file"
                 id="fileInput"
                 className='hidden'
-                onChange={(e) => handleMultipleFileChange("images", e.target.files[0])}
+                onChange={(e) => handleMultipleFileChange("images", e.target.files)}
                 accept="image/*"
+                multiple
               />
 
             </div>
@@ -537,7 +568,8 @@ export default function EditProjectPage() {
                 type="file"
                 id="sourceInput"
                 className='hidden'
-                onChange={(e) => handleMultipleFileChange("sourcecode", e.target.files[0])}
+                onChange={(e) => handleMultipleFileChange("sourcecode", e.target.files)}
+                multiple
               />
             </div>
           </div>
