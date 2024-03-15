@@ -3,7 +3,7 @@ import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload 
 import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
-import { addProject, deleteImage, deletePpt, deleteProject, deleteSourcecode, deleteVideo, getMyProjects, getprojectdata } from '../controllers/project.controller.js';
+import { addProject, deleteImage, deletePpt, deleteProject, deleteSourcecode, deleteVideo, getMyProjects, getprojectdata, updateProjectData } from '../controllers/project.controller.js';
 import {projectOwnerValidate} from '../middlewares/projectOwnershipValidation.middleware.js';
 
 
@@ -31,5 +31,12 @@ router.route("/addproject").post(veriJwt, upload.fields([
   router.route("/getprojectdata/:projectId/deleteVideo").delete(veriJwt, projectOwnerValidate, deleteVideo);
 
   router.route("/getprojectdata/:projectId/deletePpt").delete(veriJwt, projectOwnerValidate, deletePpt);
+
+  router.route("/getprojectdata/:projectId/updateProject").put(veriJwt, projectOwnerValidate, upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 },
+    { name: 'sourcecode' },
+    { name: 'ppt', maxCount: 1 },
+  ]),updateProjectData);
 
 export default router;

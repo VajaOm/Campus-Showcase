@@ -246,6 +246,19 @@ export default function EditProjectPage() {
     ))
   });
 
+  async function readAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsText(file);
+    });
+  }
+
 
   const updateBtnClickHandler = async (e) => {
     e.preventDefault();
@@ -256,10 +269,38 @@ export default function EditProjectPage() {
       const newData = {
         ...projectData,
         images: projectData.images.filter(image => image instanceof File),
-        sourcecode: projectData.sourcecode.filter(file => file instanceof File),
         video: projectData.video instanceof File ? projectData.video : null,
         ppt: projectData.ppt instanceof File ? projectData.ppt : null
       };
+
+
+      const sourceCodeUploadPromises = newData.sourcecode.map(async (sourceCodeFile) => {
+        try {
+
+          if (!(sourceCodeFile instanceof File)) {
+            console.error("Invalid sourceCodeFile:", sourceCodeFile);
+            return;
+          }
+
+          const codeContent = await readAsText(sourceCodeFile);
+
+          const textFileName = `${sourceCodeFile.name}`;
+
+          const blob = new Blob([codeContent], { type: 'text/plain' });
+          const textFile = new File([blob], textFileName, { type: 'text/plain' });
+
+
+          return textFile;
+
+        } catch (error) {
+          console.error("Error processing source code file:", error);
+          throw error;
+        }
+      });
+
+      newData.sourcecode = await Promise.all(sourceCodeUploadPromises);
+
+      console.log(newData)
     } catch (error) {
       let newErrors = {};
       error.inner?.forEach((err) => {
@@ -269,9 +310,9 @@ export default function EditProjectPage() {
     }
   }
 
-  useEffect(() => {
-    console.log(errors)
-  }, [projectData])
+  // useEffect(() => {
+  //   console.log(errors)
+  // }, [projectData])
 
 
 

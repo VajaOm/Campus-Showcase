@@ -5,9 +5,7 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { Project } from "../models/project.model.js";
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import mongoose from 'mongoose'
-import fs from 'fs'
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path'
+
 
 const addProject = asyncHandler(async (req, res) => {
     console.log("add project page ")
@@ -214,7 +212,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     const x = await Project.updateOne({ _id: projectId }, { $unset: { video: 1 } })
 
-    if(!x) {
+    if (!x) {
         throw new ApiError(402, "Problem in deletion of video.")
     }
 
@@ -229,7 +227,7 @@ const deletePpt = asyncHandler(async (req, res) => {
 
     const x = await Project.updateOne({ _id: projectId }, { $unset: { ppt: 1 } })
 
-    if(!x) {
+    if (!x) {
         throw new ApiError(402, "Problem in deletion of ppt.")
     }
 
@@ -238,4 +236,104 @@ const deletePpt = asyncHandler(async (req, res) => {
     )
 })
 
-export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt };
+const updateProjectData = asyncHandler(async (req, res) => {
+    try {
+        console.log("update project page ")
+        const { title, description, tools, category } = req.body;
+        const { images, video, sourcecode, ppt } = req.files;
+    
+        const projectId = req.params.projectId;
+    
+        const project = await Project.findById(projectId);
+    
+        if (!project) {
+            throw new ApiError(404, "Project not found.")
+        }
+    
+        project.title = title || project.title;
+        project.tools = tools || project.tools;
+        project.description = description || project.description;
+        project.category = category || project.category;
+    
+    
+    
+        //Images uploading on the cloudinary
+        let imageUploadResults;
+        if(images && images.length > 0) {
+            const imageUploadPromises = images.map(async (image) => {
+                const uploadResult = await uploadOnCloudinary(image.path, "ProjectsImages");
+                return { fileName: image.originalname, fileUrl: uploadResult.url };
+            });
+        
+            imageUploadResults = await Promise.all(imageUploadPromises);    
+        }
+    
+        //video uploading on the cloudinary
+        let videoInfo;
+        if (video) {
+    
+            const videoUploadResult = await uploadOnCloudinary(video[0].path, "ProjectsVideos");
+    
+            videoInfo = { fileName: video[0].originalname, fileUrl: videoUploadResult.url }
+        }
+    
+    
+        let sourceCodeUploadResults;
+        if (sourcecode && sourcecode.length > 0) {
+    
+            const sourceCodeUploadPromises = sourcecode.map(async (sourceCode) => {
+                const uploadResult = await uploadOnCloudinary(sourceCode.path, "ProjectsSourceCode");
+                console.log(uploadResult)
+                return { fileName: sourceCode.originalname, fileUrl: uploadResult.url }
+            });
+    
+            sourceCodeUploadResults = await Promise.all(sourceCodeUploadPromises);
+        }
+    
+        //PPT uploading on the cloudinary
+        let pptInfo;
+        if (ppt) {
+    
+            const pptUploadResult = await uploadOnCloudinary(ppt[0].path, "ProjectPpts");
+            pptInfo = { fileName: ppt[0].originalname, fileUrl: pptUploadResult.url }
+        }
+    
+    
+        if (images && images.length > 0) {
+            project.images.push(...imageUploadResults);
+            console.log("image updated")
+        }
+    
+    
+        if (video) {
+            project.video = videoInfo;
+            console.log("video updated")
+        }
+    
+        // Add new source code files if provided
+        if (sourcecode && sourcecode.length > 0) {
+            console.log("source code ::: "+JSON.stringify(sourceCodeUploadResults))
+            project.sourceCode.push(...sourceCodeUploadResults);
+            console.log("sourcecode updated")
+        }
+    
+        // Add new PPT if provided
+        if (ppt) {
+            project.ppt = pptInfo;
+            console.log("ppt updated")
+        }
+    
+        // Save the updated project
+        const result = await project.save();
+    
+        res.status(200).json(
+            new ApiResponse(200, "'Project updated successfully', project", result)
+        );
+    } catch (error) {
+        console.log("error in ,.....")
+        console.log(error);
+    }
+
+})
+
+export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt, updateProjectData };
