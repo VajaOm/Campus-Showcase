@@ -81,6 +81,10 @@ function MyProjectsPage({ showMenu }) {
     }
   }
 
+  const editBtnClickHandler = () => {
+    navigate(`/dashboard/myprojects/editproject/${project._id}`)
+  }
+
   return (
     <>
 
@@ -111,7 +115,7 @@ function MyProjectsPage({ showMenu }) {
                   </div>
                   <div className='flex'>
                     <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeleteClickOpen(project._id) }}><DeleteIcon className='mr-4' /></button>
-                    <Link to={`editproject/${project._id}`} ><AddToPhotosOutlinedIcon /></Link>
+                    <button onClick={editBtnClickHandler} ><AddToPhotosOutlinedIcon /></button>
                   </div>
                 </div>
               </Link>
