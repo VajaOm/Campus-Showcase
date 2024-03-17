@@ -336,4 +336,42 @@ const updateProjectData = asyncHandler(async (req, res) => {
 
 })
 
-export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt, updateProjectData };
+const getAllProject = asyncHandler(async (req, res) => {
+    const projects = await Project.aggregate([
+        {
+            $lookup: {
+                from: 'students',
+                localField: 'owner',
+                foreignField: '_id',
+                as: 'ownerInfo'
+            }
+        },
+        {
+            $unwind: '$ownerInfo'
+        },
+        {
+            $project: {
+                title: 1,
+                description: 1,
+                tools: 1,
+                category: 1,
+                images: 1,
+                video: 1,
+                sourceCode: 1,
+                ppt: 1,
+                ownerName: '$ownerInfo.fullName' // Extract owner's name
+            }
+        }
+    ]);
+
+
+    if(!projects) {
+        throw new ApiError(404, "No projects found");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Projects found", projects)
+    )
+})
+
+export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt, updateProjectData, getAllProject };

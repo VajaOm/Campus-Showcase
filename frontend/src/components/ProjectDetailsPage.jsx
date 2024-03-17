@@ -23,6 +23,7 @@ const ProjectDetailsPage = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            window.scrollTo(0, 0);
             try {
                 const response = await axios.get(`http://localhost:5000/project/getprojectdata/${projectId}`, {
                     withCredentials: true,
@@ -151,7 +152,7 @@ const ProjectDetailsPage = () => {
                     <div>
                         <h1 className='mb-5 lg:text-xl '><span className='underline'>Video</span> :</h1>
                         <div className='p-2 bg-black rounded-md flex justify-center'>
-                            <video src={projectData.video.fileUrl} controls className='drop'></video>
+                            <video src={projectData?.video?.fileUrl} controls className='drop'></video>
                         </div>
                     </div>
 
