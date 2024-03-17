@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation  } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,8 +20,15 @@ const ProjectDetailsPage = () => {
     });
     const [selectedSourcecode, setSelectedSourcecode] = useState(null);
     const [selectedSourceCodeContent, setSelectedSourceCodeContent] = useState("");
+    const [isMyProjectsPage, setIsMyProjectsPage] = useState(false);
+    const location = useLocation();
+
 
     useEffect(() => {
+
+        setIsMyProjectsPage(location.pathname.includes('/dashboard/myprojects'));
+       
+
         const fetchData = async () => {
             window.scrollTo(0, 0);
             try {
@@ -95,7 +102,7 @@ const ProjectDetailsPage = () => {
     return (
         <div>
             <div className='mt-14 text-white'>
-                <Link to={'/dashboard/myprojects'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
+                <Link to={isMyProjectsPage ? '/dashboard/myprojects' : '/dashboard/explore'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
             </div>
             <div className='mt-5 w-full flex justify-center'>
                 <div className='w-11/12 flex flex-col gap-6'>

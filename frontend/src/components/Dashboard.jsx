@@ -33,6 +33,7 @@ function Dashboard() {
           <Route path='myprofile' element={<StudentProfilePage />}></Route>
           <Route path='myprojects/editproject/:projectId' element={<EditProjectPage />}></Route>
           <Route path='myprojects/projectdetails/:projectId' element={<ProjectDetailsPage />}></Route>
+          <Route path='explore/projectdetails/:projectId' element={<ProjectDetailsPage />}></Route>
         </Routes>
       </div>
     </div>
