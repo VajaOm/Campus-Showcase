@@ -30,8 +30,10 @@ app.use(cookieParser());
 
 import userRouter from './routes/user.routes.js';
 import projectRouter from './routes/project.routes.js';
+import eventRouter from './routes/event.routes.js'
 
 app.use("/user", userRouter);
 app.use("/project", projectRouter)
+app.use("/event", eventRouter)
 
 export {app};

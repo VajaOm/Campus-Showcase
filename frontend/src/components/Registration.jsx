@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import * as Yup from 'yup';
-import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
 import Login from './Login';
