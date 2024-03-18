@@ -76,11 +76,14 @@ const Login = () => {
                     if (response.data.data.redirectTo === '/studentProfile') {
                         navigate("/studentProfile");
                     }
+                    else if(response.data.data.user.role === 'Student') {
+                        navigate("/dashboard");
+                    }
                     else if(response.data.data.redirectTo === "/facultyProfile") {
                         navigate('/facultyProfile');
                     }
                     else {
-                        navigate("/dashboard");
+                        navigate('/admindashboard')
                     }
 
                 }

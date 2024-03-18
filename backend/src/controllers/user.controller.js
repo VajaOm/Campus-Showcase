@@ -5,6 +5,7 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import { Student } from '../models/student.model.js';
 import { Faculty } from '../models/faculty.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import { Project } from "../models/project.model.js";
 
 const registerUser = asyncHandler(async (req, res) => {
     let createdUser;
@@ -99,7 +100,7 @@ const loginUser = asyncHandler(async (req, res) => {
     // console.log("username :: ", username)
     // console.log("Role :: ", role)
 
-    console.log("Before querying the database...");
+    // console.log("Before querying the database...");
 
     if (role === "Student") {
         if (emailorusername.includes("@gmail.com")) {
@@ -117,7 +118,7 @@ const loginUser = asyncHandler(async (req, res) => {
         }
     }
 
-    console.log("after querying the database...");
+    // console.log("after querying the database...");
     // console.log(user)
 
     if (!user) {
@@ -144,7 +145,15 @@ const loginUser = asyncHandler(async (req, res) => {
 
     if (role === "Faculty" && user.firstTime) {
         // console.log("first time faculty fun");
-        await Faculty.updateOne({ email: user.email }, { $set: { firstLogin: false } });
+        const x = await Faculty.updateOne({ email: user.email }, { $set: { firstTime: false } });
+
+        await user.save({ validateBeforeSave: false });
+
+        if (emailorusername.includes("@gmail.com")) {
+            user = await Faculty.findOne({ email: emailorusername });
+        } else {
+            user = await Faculty.findOne({ username: emailorusername });
+        }
 
         return res.status(201)
             .cookie("accessToken", accessToken, options)
@@ -216,7 +225,7 @@ const getUserProfileData = asyncHandler(async (req, res) => {
 
 
 const profileUpload = asyncHandler(async (req, res) => {
-console.log("update page rendering")
+    console.log("update page rendering")
     const { username, enrollmentNo, year, semester, avatar } = req.body;
     const { _id, email, role } = req.user;
 
@@ -316,5 +325,52 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 });
 
+const getStudents = asyncHandler(async (req, res) => {
+    const { semester } = req.params;
 
-export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload }
+    if (!semester) {
+        throw new ApiError(404, "Semester required.")
+    }
+
+    const students = await Student.find({ semester });
+
+    if (!students) {
+        throw new ApiError(404, "Student not found");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Students found", students)
+    )
+
+})
+
+const getStudentProjects = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+
+    if (!id) {
+        throw new ApiError(402, "id is not found");
+    }
+
+    const user = await Student.findById(id);
+
+    if (!user) {
+        throw new ApiError(404, 'user if not found');
+    }
+
+    const projectsId = user.projects;
+
+    const projects = await Promise.all(projectsId.map(async projectId => {
+        const project = await Project.findById(projectId);
+        return project;
+    }));
+
+    // Step 4: Assemble the project details and send them as a response
+    res.status(200).json({
+        status: 'success',
+        message: 'Projects fetched successfully.',
+        projects: projects,user
+    });
+})
+
+
+export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects }

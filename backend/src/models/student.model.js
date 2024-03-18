@@ -90,7 +90,7 @@ const studentSchema = mongoose.Schema(
 
     //generating access and refresh tokens
     studentSchema.methods.generateAccessTokens = function(role) {
-        console.log("student schema generateAccessTokens :::: ",role)
+        // console.log("student schema generateAccessTokens :::: ",role)
         return generateAccessToken(this, role);
     }
 

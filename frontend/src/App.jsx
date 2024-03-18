@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react'
 import FacultyProfilePage from './components/FacultyProfilePage';
 import AddProject from './components/AddProject';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/Faculty/AdminDashboard';
 // import ProtectRoute from './ProtectRoute';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path='/studentProfile' element={<StudentProfilePage />} />
         <Route path='/facultyProfile' element={<FacultyProfilePage />} />
         <Route path='/dashboard/*' element={<Dashboard />} />
+        <Route path='/admindashboard/*' element={<AdminDashboard />} />
       </Routes>
 
 
