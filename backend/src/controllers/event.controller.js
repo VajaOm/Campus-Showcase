@@ -49,4 +49,17 @@ const createEvent = asyncHandler(async (req, res) => {
    }
 })
 
-export {createEvent}
+const getEvents = asyncHandler(async (req, res) => {
+    const events = await Event.find();
+
+    if(!events) {
+        throw new ApiError("Error in fetching the events");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "Events are fetched", events)
+    )
+})
+
+
+export {createEvent, getEvents}

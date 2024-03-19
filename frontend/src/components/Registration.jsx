@@ -7,7 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios'
 import Login from './Login';
 
 // const reducer = (passwordErrors, action) => {
@@ -82,11 +82,14 @@ export default function Registration() {
       console.log("Form submitted");
 
       try {
+       
         const response = await axios.post("http://localhost:5000/user/register", formData, {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           }
         });
+
+        console.log("response data ;.... ",response)
 
         if (response.status === 201) {
           console.log(response.data.message);

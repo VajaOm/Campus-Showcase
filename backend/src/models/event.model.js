@@ -24,7 +24,10 @@ const eventSchema = mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Student"
         }
-    ]
+    ],
+    image: {
+        type: String
+    }
 }, 
     {timestamps: true});
 
