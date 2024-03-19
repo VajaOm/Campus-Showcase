@@ -3,6 +3,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import {Event} from '../models/event.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import {Student} from '../models/student.model.js'
 
 const createEvent = asyncHandler(async (req, res) => {
     console.log("event creation page")
@@ -61,5 +62,27 @@ const getEvents = asyncHandler(async (req, res) => {
     )
 })
 
+const getEventDetails = asyncHandler (async (req, res) => {
+        const { eventId } = req.params;
 
-export {createEvent, getEvents}
+        if(!eventId) {
+            throw new ApiError(401, "Event Id not found")
+        }
+
+        const event = await Event.findById(eventId);
+
+        if(!event) {
+            throw new ApiError(404, "event is not found")
+        }
+
+        const participatingStudents = await Student.find({
+            participatedEvents: eventId
+        });
+
+        res.status(200).json(
+            new ApiResponse(200, "event is fetched successfully", event, participatingStudents)
+        )
+})  
+
+
+export {createEvent, getEvents, getEventDetails}

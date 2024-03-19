@@ -7,6 +7,7 @@ import ProjectDetails from './ProjectDetails';
 import image from '../../assets/circle-scatter-haikei.png';
 import EventCreation from './EventCreation';
 import Events from './Events';
+import EventDetails from './EventDetails';
 
 export default function AdminDashboard() {
 
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
                     <Route path='/project/:projectId' element={<ProjectDetails />}></Route>
                     <Route path='/' element={<Semester />}></Route>
                     <Route path='/events/eventcreate' element={<EventCreation />}></Route>
+                    <Route path='/events/:eventId' element={<EventDetails />}></Route>
                     <Route path='/events' element={<Events />}></Route>
                 </Routes>
 

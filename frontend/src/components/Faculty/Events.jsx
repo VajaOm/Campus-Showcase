@@ -10,6 +10,7 @@ export default function Events() {
             try {
                 const response = await axios.get('http://localhost:5000/event/getevents', { withCredentials: true });
                 setEvents(response.data.data);
+                console.log(response.data.data)
             } catch (error) {
                 console.log('Error in fetching the events:', error);
             }
@@ -27,23 +28,23 @@ export default function Events() {
                     {events.map((event, index) => (
                         <div key={index} className='flex p-3 lg:px-6 bg-[#1B1A55] mt-10 rounded-lg text-sm gap-4 md:gap-8'>
                             <div className='w-2/12'>
-                                <img src={event?.image} alt="event image" />
+                                <img src={event?.image} alt="event image"/>
                             </div>
                             <div className='flex flex-col md:gap-2 lg:gap-4 justify-center'>
                                 <div>
                                     <h1 className='text-lg md:text-xl'>{event?.name}</h1>
                                 </div>
                                 <div>
-                                    
+
                                     <h1 className='md:text-md lg:text-lg'>Start Date : {formatDate(event?.startDate)}</h1>
                                 </div>
                                 <div>
-                                    
+
                                     <h1 className='md:text-md lg:text-lg'>End Date : {formatDate(event?.endDate)}</h1>
                                 </div>
                             </div>
                             <div className='flex justify-end items-center ml-auto'>
-                                <Link className='p-2 px-3 md:px-4 rounded-md bg-[#9290C3] text-black hover:bg-[#535C91] text-md md:text-lg lg:text-xl ' to={'/events'}>View</Link>
+                                <Link className='p-2 px-3 md:px-4 rounded-md bg-[#9290C3] text-black hover:bg-[#535C91] text-md md:text-lg lg:text-xl ' to={`/admindashboard/events/${event._id}`}>View</Link>
                             </div>
                         </div>
                     ))}
