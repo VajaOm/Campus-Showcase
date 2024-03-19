@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+
 export default function Events() {
     const [events, setEvents] = useState([]);
 
@@ -19,16 +21,36 @@ export default function Events() {
         fetchData();
     }, []);
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
+    const deleteBtnHandler = async (eventId) => {
+       try {
+        
+         const response = await axios.get(`http://localhost:5000/event/eventdelete/${eventId}`, {withCredentials:true});
+         console.log(response)
+
+       } catch (error) {
+        console.log("Error in deleting the event", error)
+       }
+
+    }
+
     return (
         <div>
             <div>
                 <Link className='bg-[#9290C3] text-white hover-bg[#535C91] duration-300 p-2 rounded-md' to={'/admindashboard/events/eventcreate'}>Create Event</Link>
 
-                <div className='flex flex-col'>
+                <div className='flex flex-col items-center '>
                     {events.map((event, index) => (
-                        <div key={index} className='flex p-3 lg:px-6 bg-[#1B1A55] mt-10 rounded-lg text-sm gap-4 md:gap-8'>
+                        <div key={index} className= 'lg:w-11/12 flex p-3 lg:px-6 bg-[#1B1A55] mt-10 rounded-xl text-sm gap-4 md:gap-8'>
                             <div className='w-2/12'>
-                                <img src={event?.image} alt="event image"/>
+                                <img src={event?.image} alt="event image" />
                             </div>
                             <div className='flex flex-col md:gap-2 lg:gap-4 justify-center'>
                                 <div>
@@ -43,8 +65,9 @@ export default function Events() {
                                     <h1 className='md:text-md lg:text-lg'>End Date : {formatDate(event?.endDate)}</h1>
                                 </div>
                             </div>
-                            <div className='flex justify-end items-center ml-auto'>
-                                <Link className='p-2 px-3 md:px-4 rounded-md bg-[#9290C3] text-black hover:bg-[#535C91] text-md md:text-lg lg:text-xl ' to={`/admindashboard/events/${event._id}`}>View</Link>
+                            <div className='w-1/2 flex justify-end items-center ml-auto gap-2 sm:gap-10'>
+                                <button className='bg-red-500 hover:bg-red-900 duration-300 text-sm  sm:text-md rounded-md text-white p-2' onClick={() => deleteBtnHandler(event._id)}><DeleteForeverIcon /> Delete</button>
+                                <Link className='p-2 px-3 md:px-4 rounded-md bg-[#1B1A55] border-2 text-white hover:bg-[#535C91] text-md md:text-lg lg:text-md duration-300' to={`/admindashboard/events/${event._id}`}>View</Link>
                             </div>
                         </div>
                     ))}
@@ -54,11 +77,4 @@ export default function Events() {
     );
 }
 
-// Function to format date in "dd/mm/yyyy" format
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-};
+

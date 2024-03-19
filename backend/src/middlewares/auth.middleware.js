@@ -8,6 +8,7 @@ const veriJwt = asyncHandler(async (req, res, next) => {
     let user;
 
     if (req.cookies?.accessToken) {
+      
         const token = req.cookies?.accessToken;
 
         if (!token) {
@@ -36,6 +37,7 @@ const veriJwt = asyncHandler(async (req, res, next) => {
             req.user = user;
             next();
         } catch (error) {
+            
             return next(new ApiError(401, "Invalid access token"));
 
         }
