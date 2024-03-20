@@ -165,7 +165,7 @@ function AddProject({ showMenu }) {
 
     return (
         <div
-            className={`flex justify-center w-full sm:justify-start sm:w-full md:w-11/12 lg:w-9/12 box-border overflow-y-auto flex-1 ${showMenu ? 'filter blur-sm' : ''}`}
+            className={`flex justify-center w-full sm:justify-start sm:w-full md:w-11/12 lg:w-9/12 box-border overflow-y-auto flex-1 ${showMenu ? 'filter blur-sm' : ''}` } style={{ backgroundImage: `url(${topPattern})` }}
 
         >
 

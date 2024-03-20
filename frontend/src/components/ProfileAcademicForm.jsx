@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 
-const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix }) => {
+const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix, userdata }) => {
 
     const [selectedYear, setSelectedYear] = useState(1);
-
+    console.log(userdata)
     const years = [1, 2, 3, 4];
     const semesters = {
         1: [1, 2],
@@ -25,7 +25,7 @@ const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix }) => {
                 <label htmlFor={`${formIdPrefix}enrollmentNo`}>Enrollment No.</label>
                 <input type="number" id={`${formIdPrefix}enrollmentNo`} className='bg-[#070F2B] border-b-2 w-full focus:outline-none xl:mt-0 2xl:mt-2 md:mt-2 text-md'
                     name="ProfileAcademicForm.enrollmentNo"
-                    value={formik.values.ProfileAcademicForm.enrollmentNo}
+                    value={userdata.enrollmentNo}
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange} />
                 {formik.errors.ProfileAcademicForm && isSubmiting && (
@@ -41,12 +41,12 @@ const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix }) => {
                 <label htmlFor={`${formIdPrefix}year`} className='mt-6 2xl:mt-8 xl:mt-5'>Year</label>
                 <select id={`${formIdPrefix}year`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0'
                     name="ProfileAcademicForm.year"
-                    value={formik.values.ProfileAcademicForm.year}
+                    value={userdata.year}
                     onBlur={formik.handleBlur}
                     onChange={(e) => {
                         yearInputChangeHandler(e);
                         formik.handleChange(e);
-                      }} >
+                    }} >
                     {
                         years.map((year) => {
                             return <option value={year} key={year}>{year}</option>
@@ -61,14 +61,14 @@ const ProfileAcademicForm = ({ formik, isSubmiting, formIdPrefix }) => {
 
 
                 <label htmlFor={`${formIdPrefix}semester`} className='mt-6 xl:mt-5 2xl:mt-8'>Semester</label>
-                { selectedYear && <select id={`${formIdPrefix}semester`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0'
+                {selectedYear && <select id={`${formIdPrefix}semester`} className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2 md:mt-2 xl:mt-0'
                     name="ProfileAcademicForm.semester"
-                    value={formik.values.ProfileAcademicForm.semester}
+                    value={userdata.semester}
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}>
-                    
+
                     {
-                        semesters[selectedYear].map( (semester) => {
+                        semesters[selectedYear].map((semester) => {
                             return <option value={semester} key={semester} >{semester}</option>
                         })
                     }

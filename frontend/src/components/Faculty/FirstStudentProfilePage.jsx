@@ -11,7 +11,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
 import toast, { Toaster } from 'react-hot-toast';
-import topPattern from '../assets/add_project_pattern.png';
 
 
 const ProfilePage = () => {
@@ -22,18 +21,7 @@ const ProfilePage = () => {
     const [isGeneralInfo, setIsGeneralInfo] = useState(true);
     const [isSubmiting, setIsSubmiting] = useState(false);
     const inputRef = useRef(null);
-    const [img, setImg] = useState(null);
-    const [userGeneralData, setUserGeneralData] = useState({
-        email: '',
-        username: '',
-        fullName: '',
-    });
-    const [userAcademicData, setUserAcademicData] = useState({
-        enrollmentNo: '',
-        year: '',
-        semester: ''
-    });
-    const [avatar, setAvatar] = useState(null);
+    const [img, setImg] = useState(null)
 
 
 
@@ -110,31 +98,25 @@ const ProfilePage = () => {
                 const response = await axios.get("http://localhost:5000/user/profile", {
                     withCredentials: true,
                 });
+                setUserEmail(response.data.data.email)
 
-                setUserGeneralData({
-                    fullName: response.data.data.fullName,
-                    email: response.data.data.email,
-                    username: response.data.data.username
-                })
-
-                setUserAcademicData({
-
-                    enrollmentNo: response.data.data.enrollmentNo,
-                    year: response.data.data.year,
-                    semester: response.data.data.semester
-                });
-
-                setAvatar(response.data.data.avatar);
-
+                setUserFullname(response.data.data.fullName);
                 if (response.data.data.role === "Faculty") {
                     navigate('/facultyProfile');
                 }
 
             } catch (error) {
                 console.log("Error in profile page:", error);
+                // if (error.response) {
+                //     console.log("Response Status Code:", error.response.status);
+                //     console.log("Response Data:", error.response.data);
+                // }
                 if (error.response?.status == 401) {
                     navigate('/')
                 }
+                // if (error.request) {
+                //     console.log("Request:", error.request);
+                // }
             }
         })()
     }, [navigate]);
@@ -208,18 +190,14 @@ const ProfilePage = () => {
     return (
         <>
 
-            <div className='lg:block flex flex-col items-center h-screen' style={{ backgroundImage: `url(${topPattern})` }} >
-
+            <div className='lg:block flex flex-col items-center'>
+                <ParticlesBg />
 
                 {/* //profile photo div */}
                 <form action="" className='w-11/12 flex flex-col items-center lg:block' onSubmit={formik.handleSubmit}>
                     <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' onClick={handleImgClick}>
-                        {avatar ? <>
-                            <Avatar src={avatar} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
-                        </> : <>
-                            {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' />
-                                : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />}
-                        </>}
+                        {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' />
+                            : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />}
 
                         <Toaster
                             position="top-center"
@@ -237,14 +215,14 @@ const ProfilePage = () => {
 
                         {/* general form */}
                         <div className='flex flex-col w-1/4'>
-                            <h1 className='text-2xl 2xl:text-2xl'>General Infromation</h1>
-                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} userdata={userGeneralData} />
+                            <h1 className='text-2xl 2xl:text-3xl'>General Infromation</h1>
+                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} />
                         </div>
 
                         {/* academic form */}
                         <div className='flex flex-col w-1/4'>
-                            <h1 className='text-white text-2xl 2xl:text-2xl'>Academic Information</h1>
-                            <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} userdata={userAcademicData}/>
+                            <h1 className='text-white text-2xl 2xl:text-3xl'>Academic Infromation</h1>
+                            <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} />
                         </div>
                     </div>
 

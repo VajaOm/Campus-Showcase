@@ -5,6 +5,7 @@ import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
 import './style.css';
 import ImageSlider from './ImageSlider';
+import topPattern from '../assets/add_project_pattern.png';
 
 const ProjectDetailsPage = () => {
     const { projectId } = useParams();
@@ -100,7 +101,7 @@ const ProjectDetailsPage = () => {
 
 
     return (
-        <div>
+        <div  style={{ backgroundImage: `url(${topPattern})` }}>
             <div className='mt-14 text-white'>
                 <Link to={isMyProjectsPage ? '/dashboard/myprojects' : '/dashboard/explore'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
             </div>

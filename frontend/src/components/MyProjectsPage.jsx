@@ -11,6 +11,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useNavigate, Link } from 'react-router-dom';
+import topPattern from '../assets/add_project_pattern.png';
 
 
 function MyProjectsPage({ showMenu }) {
@@ -88,7 +89,7 @@ function MyProjectsPage({ showMenu }) {
   return (
     <>
 
-      <div className='w-full flex justify-center lg:justify-start mt-8 sm:mt-0 lg:mt-8 xl:mt-0'>
+      <div className='w-full flex justify-center lg:justify-start mt-8 sm:mt-0 lg:mt-8 xl:mt-0' style={{ backgroundImage: `url(${topPattern})` }}>
         <div className={`flex flex-col lg:w-10/12 w-11/12 ${showMenu ? 'filter blur-sm' : ''}`}>
           <p className="text-slate-100 text-3xl sm:text-4xl mt-10">My Projects</p>
           <input

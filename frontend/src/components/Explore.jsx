@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import image from '../assets/b.png';
 import Lgimage from '../assets/d.png';
 import axios from 'axios';
+import topPattern from '../assets/add_project_pattern.png';
 
 const Explore = () => {
     const isMobileScreen = window.innerWidth <= 768;
@@ -44,7 +45,7 @@ const Explore = () => {
     });
 
     return (
-        <div className='flex justify-center lg:justify-start'>
+        <div className='flex justify-center lg:justify-start' style={{ backgroundImage: `url(${topPattern})` }}>
             <div className='w-11/12 flex flex-col items-start'>
                 <h1 className='text-2xl md:text-3xl mt-14 mb-8'>Explore</h1>
 

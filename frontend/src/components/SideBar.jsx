@@ -2,21 +2,33 @@ import React from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
+import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
 
 function SideBar({ showMenu, toggleMenu }) {
 
     const location = useLocation();
+    const navigate = useNavigate();
 
 
     const isLinkActive = (pathname) => {
 
-        if((location.pathname).includes(pathname)) {
+        if ((location.pathname).includes(pathname)) {
             return true;
         }
 
         return location.pathname === `/dashboard${pathname}`;
     };
+
+    const logoutBtnClickHandler = async () => {
+        const response = await axios.get('http://localhost:5000/user/logout', { withCredentials: true });
+
+        if (response.status === 200) {
+            navigate('/');
+        }
+    }
 
     return (
         <div className="flex  w-1/2 absolute sm:relative sm:w-1/5 md:w-3/12 lg:w-1/5 h-100vh overflow-y-hidden ">
@@ -26,7 +38,7 @@ function SideBar({ showMenu, toggleMenu }) {
                 style={{ top: '0', left: '0', zIndex: '1' }}
             >
                 <div className='flex border-b-[1px] border-stone-400 hover:text-[#1B1A55] sm:hover:bg-[#9290C3]'>
-                    <p className="w-full text-slate-100 sm:text-xl font-bold p-4">Project Showcase</p>
+                    <p className="w-full text-slate-100 sm:text-xl font-bold p-4"> <img src={logo} alt="" className='w-2/12 inline-block' /> Project Showcase</p>
                     <Link to="#" className='text-indigo-200 sm:hidden'>
                         <CloseIcon fontSize='medium' onClick={toggleMenu} />
                     </Link>
@@ -66,8 +78,8 @@ function SideBar({ showMenu, toggleMenu }) {
                 >
                     My Profile
                 </Link>
-                <p className="text-slate-100 text-sm sm:text-lg m-8 mt-12">
-                    <button className="text-pink-600">Log Out</button>
+                <p className="text-slate-100 text-sm sm:text-lg m-8 mt-auto">
+                    <button className="text-pink-600" onClick={logoutBtnClickHandler}><LogoutIcon /> Log Out</button>
                 </p>
             </nav>
             <div className='sm:hidden mt-2'>

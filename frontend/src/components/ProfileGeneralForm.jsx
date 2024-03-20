@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 
-const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, formIdPrefix }) => {
+const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, formIdPrefix, userdata }) => {
 
+    console.log(userdata)
     return (
         <div>
             <div action="" className='grid grid-cols-1 2xl:mt-10 text-lg mt-5 form'>
-
                 <label htmlFor={`${formIdPrefix}fullName`} className=''>Name</label>
                 <input
                     type="text"
                     id={`${formIdPrefix}fullName`}
                     className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
                     name="ProfileGeneralForm.fullName"
-                    value={userFullname}
+                    value={userdata?.fullName}
                     disabled
                 />
 
@@ -24,7 +24,7 @@ const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, form
                     id={`${formIdPrefix}username`}
                     className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
                     name="ProfileGeneralForm.username"
-                    value={formik.values.ProfileGeneralForm.username}
+                    value={userdata?.username}
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}
                     autoComplete="off" // Add this line
@@ -42,7 +42,7 @@ const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, form
                     id={`${formIdPrefix}email`}
                     className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
                     name="ProfileGeneralForm.email"
-                    value={userEmail}
+                    value={userdata?.email}
                     disabled
                 />
 

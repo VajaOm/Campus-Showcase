@@ -9,6 +9,7 @@ import StudentProfilePage from './StudentProfilePage';
 import { Routes, Route } from 'react-router-dom'
 import EditProjectPage from './EditProjectPage';
 import ProjectDetailsPage from './ProjectDetailsPage';
+import EventDetails from './Faculty/EventDetails'
 
 function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
@@ -22,10 +23,11 @@ function Dashboard() {
   return (
     <div className="flex w-full h-screen overflow-hidden">
       <SideBar showMenu={showMenu} toggleMenu={toggleMenu}  />
-      <div className={`lg:ml-16 w-full flex-1 overflow-y-auto`} style={{ backgroundImage: `url(${topPattern})` }}>
+      <div className={`lg:ml-16 w-full flex-1 overflow-y-auto`} >
        
         <Routes>
-          <Route path='myprojects' element={<MyProjectsPage />}></Route>
+          <Route path='/' element={<MyProjectsPage />}></Route>
+          <Route path='myprojects' element={<MyProjectsPage />} ></Route>
           <Route path='addproject' element={<AddProject />}></Route>
           <Route path='explore' element={<Explore />}></Route>
           <Route path='explore' element={<Explore />}></Route>
@@ -34,6 +36,7 @@ function Dashboard() {
           <Route path='myprojects/editproject/:projectId' element={<EditProjectPage />}></Route>
           <Route path='myprojects/projectdetails/:projectId' element={<ProjectDetailsPage />}></Route>
           <Route path='explore/projectdetails/:projectId' element={<ProjectDetailsPage />}></Route>
+          <Route path='events/:eventId' element={<EventDetails />}></Route>
         </Routes>
       </div>
     </div>
