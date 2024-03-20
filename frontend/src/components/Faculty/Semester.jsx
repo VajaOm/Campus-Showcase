@@ -25,7 +25,7 @@ export default function Semester() {
                         {
                             semesters.map((semester, index) => (
                                 <>
-                                    <div className='w-full lg:w-1/2 bg-[#9290C3] p-5 rounded-md hover:bg-[#535C91] duration-500 md:text-md lg:text-lg' key={index} onClick={() => BtnClickHandler(semester)} >Semester {semester}</div>
+                                    <div className='w-full lg:w-1/2 bg-[#9290C3] p-5 rounded-md hover:bg-[#535C91] duration-500 md:text-md lg:text-lg text-black font-semibold' key={index} onClick={() => BtnClickHandler(semester)} >Semester {semester}</div>
                                 </>
                             ))
                         }
