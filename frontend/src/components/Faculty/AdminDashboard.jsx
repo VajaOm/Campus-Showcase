@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Semester from './Semester';
 import Students from './Students';
 import Projects from './Projects';
 import ProjectDetails from './ProjectDetails';
-import image from '../../assets/circle-scatter-haikei.png';
 import EventCreation from './EventCreation';
 import Events from './Events';
 import EventDetails from './EventDetails';
+import logo from '../../assets/logo.png';
 
 export default function AdminDashboard() {
 
@@ -19,23 +19,22 @@ export default function AdminDashboard() {
 
     return (
         <div className=''>
-            <nav className='flex justify-between border-b-2 p-4'>
-                <h1 className='text-md'>Project Showcase</h1>
-                <div className='flex gap-24'>
-                    <h1 onClick={eventBtnClickHandler}>Event</h1>
+            <nav className='flex justify-between border-b-2 p-2'>
+                <div className='flex items-baseline'>
+                <h1 className='text-md'> <img src={logo} alt="" className='w-10 inline-block ' /> Project Showcase</h1>
+                </div>
+                <div className='flex lg:gap-24 items-center'>
+                    <h1 onClick={eventBtnClickHandler} className='lg:text-xl hover:bg-[#1B1A55] px-4 duration-300 p-2 rounded-md'>Event</h1>
                     <h1>Image</h1>
                 </div>
 
             </nav>
-            <div className="bg-no-repeat bg-cover " style={{ backgroundImage: `url(${image})` }}>
-
-
-
+            <div >
 
                 <Routes >
                     <Route path='/students/:semester' element={<Students />}></Route>
-                    <Route path='/projects/:id' element={<Projects />}></Route>
-                    <Route path='/project/:projectId' element={<ProjectDetails />}></Route>
+                    <Route path='/projects/:semester/:id' element={<Projects />}></Route>
+                    <Route path='/project/:semester/:projectId' element={<ProjectDetails />}></Route>
                     <Route path='/' element={<Semester />}></Route>
                     <Route path='/events/eventcreate' element={<EventCreation />}></Route>
                     <Route path='/events/:eventId' element={<EventDetails />}></Route>

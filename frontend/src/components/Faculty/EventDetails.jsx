@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import image from '../../assets/add_project_pattern.png';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function EventDetails() {
     const { eventId } = useParams();
@@ -35,9 +37,11 @@ export default function EventDetails() {
     }, [eventId]);
 
     return (
-        <div className='flex justify-center mt-10'>
+        <div className='flex justify-center mb-10' style={{ backgroundImage: `url(${image})` }}>
             <div className='w-11/12 lg:w-8/12 flex flex-col gap-5 text-justify '>
-
+            <div className='mt-8 text-white'>
+                    <Link to={`/admindashboard/events`} className=' lg:ml-0 text-lg p-2 hover:bg-[#1B1A55] rounded-md duration-300'><ArrowBackIcon />Back</Link>
+                </div>
                 <div className='flex flex-col items-center gap-4'>
                     <h1 className='text-center text-xl md:tex-2xl lg:text-3xl font-bold'>{event?.name}</h1>
                     {isImg && <img src={event?.image} alt="event Image" className='w-1/2' />}

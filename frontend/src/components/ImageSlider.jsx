@@ -41,18 +41,21 @@ function ImageSlider({ slides }) {
     return (
         <div className='w-full lg:w-10/12  py-8 relative '>
 
-            <div className={`w-full h-full flex flex-col justify-center items-center opacity-100 `}  onClick={handleImageClick} >
-                <img src={`${slides[currentIndex]?.url}`} alt="images" className={`w-full duration-1000 aspect-video`}/>
+            <div className={`w-full h-full flex flex-col justify-center items-center opacity-100 `} onClick={handleImageClick} >
+                <div className="w-full h-full flex flex-col justify-center p-3 bg-black rounded-md">
 
-                <ArrowBackIosNewIcon className="absolute left-3" onClick={prevSlide}/>
-                <ArrowForwardIosIcon className="absolute right-3" onClick={nextSlide}/>
+                    <img src={`${slides[currentIndex]?.url}`} alt="images" className={`w-full duration-1000 aspect-video`} />
+
+                    <ArrowBackIosNewIcon className="absolute left-3" onClick={prevSlide} />
+                    <ArrowForwardIosIcon className="absolute right-3" onClick={nextSlide} />
+                </div>
                 <div className="flex flex-row">
 
-                {
-                    slides.map((slide, slideIndex) => (
-                            <FiberManualRecordIcon sx={{ fontSize: 15 }} onClick={() => goToSlide(slideIndex)} key={slideIndex}/>
-                    ))
-                }
+                    {
+                        slides.map((slide, slideIndex) => (
+                            <FiberManualRecordIcon sx={{ fontSize: 15 }} onClick={() => goToSlide(slideIndex)} key={slideIndex} />
+                        ))
+                    }
                 </div>
             </div>
 

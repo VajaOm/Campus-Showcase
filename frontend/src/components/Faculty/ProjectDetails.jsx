@@ -4,10 +4,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageSlider from '../ImageSlider';
+import image from '../../assets/add_project_pattern.png';
 
 const ProjectDetails = () => {
 
-    const { projectId } = useParams();
+    const { projectId, semester } = useParams();
     console.log(projectId)
     const [projectData, setProjectData] = useState({
         title: "",
@@ -26,9 +27,6 @@ const ProjectDetails = () => {
 
 
     useEffect(() => {
-
-      
-       
 
         const fetchData = async () => {
             window.scrollTo(0, 0);
@@ -61,19 +59,17 @@ const ProjectDetails = () => {
         fetchData();
     }, [])
 
-    
+
 
     const handleSourceCodeClick = async (index) => {
         try {
 
-            const url = projectData.sourcecode[index].fileUrl; // Assuming fileUrl is the URL for fetching content
+            const url = projectData.sourcecode[index].fileUrl; 
             // console.log(url);
 
-            // Make a request to fetch the source code content
             const response = await axios.get(url, {
                 responseType: 'text',
             });
-
 
             setSelectedSourceCodeContent(response.data);
             setSelectedSourcecode(index)
@@ -104,12 +100,12 @@ const ProjectDetails = () => {
 
 
     return (
-        <div>
-            <div>
+        <div className='flex flex-col items-center gap-8' style={{ backgroundImage: `url(${image})` }}>
+            <div className='w-11/12 lg:w-8/12'>
                 <div className='mt-14 text-white'>
-                    <Link to={`/admindashboard/projects/${projectData.owner}`} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
+                    <Link to={`/admindashboard/projects/${semester}/${projectData.owner}`} className='ml-5 lg:ml-0 text-lg p-2 rounded-md bg-[#9290C3] hover:bg-[#535C91] duration-300 text-black font-semibold'><ArrowBackIcon />Back</Link>
                 </div>
-                <div className='mt-5 w-full flex justify-center'>
+                <div className='mt-5 lg:mt-10 w-full flex justify-center '>
                     <div className='w-11/12 flex flex-col gap-6'>
                         <h1 className='text-xl lg:text-3xl'>{projectData.title}</h1>
                         <p className='text-sm text-justify lg:text-lg'>{projectData.description}</p>
@@ -156,9 +152,11 @@ const ProjectDetails = () => {
                         </div>
 
                         {/* image container */}
-                        <div className='w-full h-full flex flex-col'>
+                        <div className='w-full h-full flex flex-col '>
                             <h1 className='text-md lg:text-xl'><span className='underline'>Images</span> :</h1>
-                            <ImageSlider slides={slides} />
+                            <div className='flex justify-center'>
+                                <ImageSlider slides={slides} />
+                            </div>
                         </div>
 
                         <div>
