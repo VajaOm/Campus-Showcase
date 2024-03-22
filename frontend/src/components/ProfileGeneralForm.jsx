@@ -1,67 +1,85 @@
-import React, { useState } from 'react';
+//ProfileGeneralForm
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const ProfileGeneralForm = ({ formik, isSubmiting, userEmail, userFullname, formIdPrefix, userdata }) => {
+const ProfileGeneralForm = ({ formik, isSubmiting, sendDataToParent }) => {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
 
-    console.log(userdata)
+    useEffect(() => {
+        ;(async () => {
+            try {
+                const response = await axios.get("http://localhost:5000/user/profile", {
+                    withCredentials: true,
+                });
+                const userData = response.data.data;
+
+                setFullName(userData.fullName);
+                setEmail(userData.email);
+                setUsername(userData.username);
+            } catch (error) {
+                console.log("Error in profile page:", error);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (sendDataToParent) {
+            sendDataToParent({email: email, username: username });
+          }
+        
+    }, [email, username])
+
     return (
         <div>
-            <div action="" className='grid grid-cols-1 2xl:mt-10 text-lg mt-5 form'>
-                <label htmlFor={`${formIdPrefix}fullName`} className=''>Name</label>
+            <div className='grid grid-cols-1 2xl:mt-10 text-lg mt-5 form'>
+                <label htmlFor="fullName" className=''>Name</label>
                 <input
                     type="text"
-                    id={`${formIdPrefix}fullName`}
-                    className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
-                    name="ProfileGeneralForm.fullName"
-                    value={userdata?.fullName}
+                    id="fullName"
+                    className='bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
+                    name="fullName"
+                    value={fullName}
                     disabled
                 />
 
-
-
-                <label htmlFor={`${formIdPrefix}username`} className=' mt-6 2xl:mt-8'>Username</label>
+                <label htmlFor="username" className='mt-6 2xl:mt-8'>Username</label>
                 <input
                     type="text"
-                    id={`${formIdPrefix}username`}
-                    className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
-                    name="ProfileGeneralForm.username"
-                    value={userdata?.username}
+                    id="username"
+                    className='bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
+                    name="username"
+                    value={username}
                     onBlur={formik.handleBlur}
-                    onChange={formik.handleChange}
-                    autoComplete="off" // Add this line
+                    onChange={(e) => setUsername(e.target.value)}
+                    autoComplete="off"
                 />
 
-                {formik.errors.ProfileGeneralForm && isSubmiting && (
+                {formik.touched.username && formik.errors.username && isSubmiting && (
                     <div style={{ color: "red" }}>
-                        <small>{formik.errors.ProfileGeneralForm.username}</small>
+                        <small>{formik.errors.username}</small>
                     </div>
                 )}
 
-                <label htmlFor={`${formIdPrefix}email`} className='mt-6 2xl:mt-8'>Email</label>
+                <label htmlFor="email" className='mt-6 2xl:mt-8'>Email</label>
                 <input
                     type="text"
-                    id={`${formIdPrefix}email`}
-                    className=' bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
-                    name="ProfileGeneralForm.email"
-                    value={userdata?.email}
-                    disabled
+                    id="email"
+                    className='bg-[#070F2B] border-b-2 w-full focus:outline-none 2xl:mt-2'
+                    name="email"
+                    value={email}
+                    onBlur={formik.handleBlur}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="off"
                 />
 
-                {formik.errors.ProfileGeneralForm && isSubmiting && (
+                {formik.touched.email && formik.errors.email && isSubmiting && (
                     <div style={{ color: "red" }}>
-                        <small>{formik.errors.ProfileGeneralForm.email}</small>
+                        <small>{formik.errors.email}</small>
                     </div>
                 )}
-
-
-
             </div>
-
-            {/* this button will show only for mobile and tablets */}
-            {/* <div className='flex justify-end lg:hidden mt-4'>
-                <button type='submit' className='bg-[#9290C3] text-black font-semibold lg:w-2/5 w-3/12 px-0 lg:py-2 py-3 rounded-lg
-             hover:bg-[#535C91] hover:scale-105 transition duration-500  lg:mt-8 mt-5 mb-0 2xl:mt-16 '  onClick={handleFormSubmit}>Add</button>
-
-            </div> */}
         </div>
     );
 }

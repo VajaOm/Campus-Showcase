@@ -37,7 +37,7 @@ function SideBar({ showMenu, toggleMenu }) {
                     }`}
                 style={{ top: '0', left: '0', zIndex: '1' }}
             >
-                <div className='flex border-b-[1px] border-stone-400 hover:text-[#1B1A55] sm:hover:bg-[#9290C3]'>
+                <div className='flex border-b-[1px] border-stone-400'>
                     <p className="w-full text-slate-100 sm:text-xl font-bold p-4"> <img src={logo} alt="" className='w-2/12 inline-block' /> Project Showcase</p>
                     <Link to="#" className='text-indigo-200 sm:hidden'>
                         <CloseIcon fontSize='medium' onClick={toggleMenu} />

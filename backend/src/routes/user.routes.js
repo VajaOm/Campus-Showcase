@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects } from '../controllers/user.controller.js';
+import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects, updateFacultyProfile, updateStudentProfile } from '../controllers/user.controller.js';
 import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
@@ -18,5 +18,12 @@ router.route("/getstudents/:semester").get(veriJwt,validateFaculty, getStudents)
 router.route("/getstudentprojects/:id").get(veriJwt,validateFaculty, getStudentProjects);
 
 router.route("/logout").get(veriJwt, logoutUser);
+
+router.route("/updateprofile").post(veriJwt, upload.single("avatar"), validateFaculty, updateFacultyProfile);
+router.route("/updateprofile").post(veriJwt, updateFacultyProfile);
+
+router.route("/updatestudentprofile").post(veriJwt, upload.single("avatar"), updateStudentProfile);
+router.route("/updatestudentprofile").post(veriJwt, updateStudentProfile);
+
 
 export default router;

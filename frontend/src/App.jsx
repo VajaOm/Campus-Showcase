@@ -6,7 +6,8 @@ import { Routes, Route } from 'react-router-dom';
 import StudentProfilePage from './components/StudentProfilePage';
 
 import React, { useState, useEffect } from 'react'
-import FirstFacultyProfile from './components/FirstFacultyProfile';
+import FacultyProfilePage from './components/Faculty/FacultyProfilePage';
+// import StudentProfilePage from './StudentProfilePage'
 import AddProject from './components/AddProject';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/Faculty/AdminDashboard';
@@ -22,7 +23,7 @@ function App() {
         <Route path='/registration' element={<Registration />} />
         <Route path='/resetpassword' element={<PageNotFound />} />
         <Route path='/studentProfile' element={<StudentProfilePage />} />
-        <Route path='/facultyProfile' element={<FirstFacultyProfile />} />
+        <Route path='/facultyProfile' element={<FacultyProfilePage />} />
         <Route path='/dashboard/*' element={<Dashboard />} />
         <Route path='/admindashboard/*' element={<AdminDashboard />} />
       </Routes>

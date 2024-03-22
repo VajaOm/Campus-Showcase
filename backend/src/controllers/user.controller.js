@@ -85,22 +85,14 @@ const generateAccessAndRefreshTokens = async (userID, role) => {
 }
 
 const loginUser = asyncHandler(async (req, res) => {
-
     var user, email, username;
     const { emailorusername, role, password } = req.body;
 
     if (emailorusername.includes("@gmail.com")) {
         email = emailorusername;
-    }
-    else {
+    } else {
         username = emailorusername;
     }
-
-    // console.log("Email :: ", email);
-    // console.log("username :: ", username)
-    // console.log("Role :: ", role)
-
-    // console.log("Before querying the database...");
 
     if (role === "Student") {
         if (emailorusername.includes("@gmail.com")) {
@@ -118,14 +110,9 @@ const loginUser = asyncHandler(async (req, res) => {
         }
     }
 
-    // console.log("after querying the database...");
-    // console.log(user)
-
     if (!user) {
         throw new ApiError(404, "Account not found. If you haven't registered yet, please sign up.");
     }
-
-    //if user if first time login then redirect him to the profile page by default
 
     const isPasswordMatch = await user.isPasswordCorrect(password);
 
@@ -142,19 +129,7 @@ const loginUser = asyncHandler(async (req, res) => {
         sameSite: 'None'
     };
 
-
     if (role === "Faculty" && user.firstTime) {
-        // console.log("first time faculty fun");
-        const x = await Faculty.updateOne({ email: user.email }, { $set: { firstTime: false } });
-
-        await user.save({ validateBeforeSave: false });
-
-        if (emailorusername.includes("@gmail.com")) {
-            user = await Faculty.findOne({ email: emailorusername });
-        } else {
-            user = await Faculty.findOne({ username: emailorusername });
-        }
-
         return res.status(201)
             .cookie("accessToken", accessToken, options)
             .cookie("refreshToken", refreshToken, options)
@@ -169,19 +144,6 @@ const loginUser = asyncHandler(async (req, res) => {
             )
 
     } else if (role === "Student" && user.firstTime) {
-        // console.log("first time student fun");
-        const x = await Student.updateOne({ email: user.email }, { $set: { firstTime: false } });
-        // console.log("updated data :: ", x);
-        await user.save({ validateBeforeSave: false });
-
-        if (emailorusername.includes("@gmail.com")) {
-            user = await Student.findOne({ email: emailorusername });
-        } else {
-            user = await Student.findOne({ username: emailorusername });
-        }
-
-        // console.log(user)
-
         return res.status(201)
             .cookie("accessToken", accessToken, options)
             .cookie("refreshToken", refreshToken, options)
@@ -207,9 +169,8 @@ const loginUser = asyncHandler(async (req, res) => {
                 }
             )
         )
-
-
 });
+
 
 const getUserProfileData = asyncHandler(async (req, res) => {
     console.log("profile page rendering")
@@ -368,9 +329,80 @@ const getStudentProjects = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: 'success',
         message: 'Projects fetched successfully.',
-        projects: projects,user
+        projects: projects, user
     });
 })
 
 
-export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects }
+const updateFacultyProfile = asyncHandler(async (req, res) => {
+    console.log("Update page");
+    const { username, email } = req.body;
+    const { _id } = req.user;
+
+    const avatarLocalPath = req.file?.path || null;
+    let uploadResult;
+
+     if (avatarLocalPath) {
+         uploadResult = await uploadOnCloudinary(avatarLocalPath, "avatar");
+ 
+         if (!uploadResult) {
+             throw new ApiError(401, 'Problem in uploading the image onto the cloudinary');
+         }
+
+         console.log(uploadResult)
+     }
+
+    const updatedFaculty = await Faculty.findOneAndUpdate(
+        { _id: _id },
+        { $set: { username: username, email: email, avatar: uploadResult?.secure_url || null, firstTime: false } },
+        { new: true }
+    );
+
+    console.log(uploadResult)
+
+    res.status(200).json({
+        success: true,
+        data: updatedFaculty,
+        message: "Faculty profile updated successfully"
+    });
+});
+
+const updateStudentProfile = asyncHandler(async (req, res) => {
+console.log("update page")
+    const {username, email, year , semester, enrollmentNo}  = req.body;
+    const {_id} = req.user;
+console.log(username, email, year , semester, enrollmentNo)
+    const avatarLocalPath = req.file?.path;
+
+    let uploadResult;
+    let avatarUpdate;
+    if(avatarLocalPath) {
+        uploadResult = await uploadOnCloudinary(avatarLocalPath, "avatar");
+
+        if(!uploadResult) {
+            throw new ApiError(402, "Problem while uploading the avatar onto the cloudinary.")
+        }
+        
+        avatarUpdate = await Student.findOneAndUpdate(
+            {_id : _id},
+            {$set: {avatar:uploadResult.url}},
+            {new : true}
+        );
+    }
+
+    const result = await Student.findOneAndUpdate(
+        {_id : _id},
+        {$set: {username : username, email: email, year: year, semester: semester, enrollmentNo: enrollmentNo, firstTime: false}},
+        {new : true}
+    );
+
+    if(!result) {
+        throw new ApiError(402,"Error in updating the data");
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, "updating the data successfull", result, avatarUpdate)
+    )
+})
+
+export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects, updateFacultyProfile, updateStudentProfile }

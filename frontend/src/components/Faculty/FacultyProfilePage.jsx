@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-
-
+import ParticlesBg from '../ParticlesBg';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -13,7 +12,7 @@ import image from '../../assets/pro.svg';
 
 const FacultyProfilePage = () => {
 
-   
+
     const [userFullname, setUserFullname] = useState("");
     const [avatar, setAvatar] = useState();
     const navigate = useNavigate();
@@ -24,8 +23,10 @@ const FacultyProfilePage = () => {
     const [userData, setUserData] = useState({
         username: "",
         email: "",
-        avatar: null
+        avatar: null,
     });
+
+    const [firstTime, setFirsttime] = useState(false);
 
 
     const validationSchema = Yup.object({
@@ -51,12 +52,15 @@ const FacultyProfilePage = () => {
 
                 setUserData((prev) => ({
                     ...prev,
-                    email: response.data.data.email
+                    email: response.data.data.email,
+                    username: response.data.data.username
                 }))
 
                 setUserFullname(response.data.data.fullName);
 
-                setAvatar(response.data.data.avatar);
+                setAvatar(response.data.data.avatar || null);
+
+                setFirsttime(response.data.data.firstTime)
 
                 if (response.data.data.role === "Student") {
                     navigate('/studentProfile')
@@ -125,25 +129,30 @@ const FacultyProfilePage = () => {
 
                     const formData = new FormData();
 
-                    if(avatar instanceof File) {
+                    if (img instanceof File) {
                         formData.append("avatar", img);
                     }
-                    formData.append("username", userData.username); 
+                    formData.append("username", userData.username);
                     formData.append("email", userData.email);
+                   
 
                     try {
 
-                        const response = await axios.post("http://localhost:5000/user/profile", formData, {
+                        const response = await axios.post("http://localhost:5000/user/updateprofile", formData, {
                             headers: {
                                 'Content-Type': "multipart/form-data"
                             },
                             withCredentials: true
                         });
-                        console.log(response)
+
+                        if (response.status === 200) {
+                            navigate('/admindashboard?from=profile');
+
+                        }
 
                     } catch (error) {
                         console.log("error in submit  :: " + error)
-                        // }
+                        
                     }
                 }
             }
@@ -155,9 +164,6 @@ const FacultyProfilePage = () => {
                     newErrors[err.path] = err.message;
                 });
             }
-            // console.log(error?.inner)
-
-
 
             setErrors(newErrors);
         }
@@ -166,15 +172,15 @@ const FacultyProfilePage = () => {
 
 
     useEffect(() => {
-        console.log(userData.username, userData.email)
+        console.log(userData.username, userData.email, firstTime)
     }, [userData])
 
     return (
         <>
 
-            <div className='lg:block flex flex-col items-center  min-h-screen overflow-y-hidden lg:mb-5' style={{ backgroundImage: `url(${image})` }}>
+            <div className='lg:block flex flex-col items-center  min-h-screen overflow-y-hidden lg:mb-5 bg-repeat' style={firstTime ? {} : { backgroundImage: `url(${image})`, backgroundRepeat: 'repeat' }}>
 
-
+                {firstTime ? <ParticlesBg /> : <></>}
                 {/* //profile photo div */}
                 <form action="" className='w-11/12 flex flex-col items-center lg:block' >
                     <div className='flex flex-col items-center mt-5 lg:mt-10 xl:mt-2 2xl:mt-14 gap-0' >
@@ -220,6 +226,7 @@ const FacultyProfilePage = () => {
                                     id={"username"}
                                     className=' bg-[#070F2B] border-b-2 w-full focus:outline-none mt-3 '
                                     name="username"
+                                    value={userData.username || ''}
                                     onChange={(e) => onChangeHandler("username", e.target.value)}
                                     autoComplete="off" // Add this line
                                 />
@@ -242,7 +249,7 @@ const FacultyProfilePage = () => {
 
                                 <div className='flex justify-end md:mt-10 xl:mt-0'>
                                     <button type='submit' className='bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
-                          hover:bg-[#535C91] hover:scale-105 transition duration-500 mt-5 mb-0 2xl:mt-10' onClick={handleAddButtonClick} >Update</button>
+                          hover:bg-[#535C91] hover:scale-105 transition duration-500 mt-5 mb-0 2xl:mt-10' onClick={handleAddButtonClick} >{firstTime ? 'Add' : 'Update'}</button>
                                 </div>
                             </div>
 

@@ -22,17 +22,23 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        (async () => {
+        const fetch = async () => {
             try {
                 const response = await axios.get("http://localhost:5000/user/profile", {
                     withCredentials: true,
                 });
+
                 setAvatar(response.data.data.avatar);
             } catch (error) {
                 console.log("Error in profile page:", error);
             }
-        })();
-    }, []);
+
+            if (location.search.includes('from=profile')) {
+                fetchAvatar(); // Fetch avatar data
+            }
+        }
+        fetch();
+    }, [location.search])
 
     useEffect(() => {
         const handleClickOutside = (event) => {

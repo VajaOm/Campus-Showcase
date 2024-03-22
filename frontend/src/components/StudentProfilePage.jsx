@@ -1,3 +1,5 @@
+//StudentProfilePage
+
 import React, { useState, useRef, useEffect } from 'react';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ParticlesBg from './ParticlesBg';
@@ -23,21 +25,12 @@ const ProfilePage = () => {
     const [isSubmiting, setIsSubmiting] = useState(false);
     const inputRef = useRef(null);
     const [img, setImg] = useState(null);
-    const [userGeneralData, setUserGeneralData] = useState({
-        email: '',
-        username: '',
-        fullName: '',
-    });
-    const [userAcademicData, setUserAcademicData] = useState({
-        enrollmentNo: '',
-        year: '',
-        semester: ''
-    });
+
     const [avatar, setAvatar] = useState(null);
+    const [firstTime, setFirsttime] = useState(false);
+    const [generalData, setGeneralData] = useState({});
+    const [academicData, setAcademicData] = useState({});
 
-
-
-    //issue handling releted to same id 
     const formIdPrefixFirstForm = "firstForm";
     const formIdPrefixSecondForm = "secondForm";
 
@@ -102,29 +95,14 @@ const ProfilePage = () => {
 
 
     useEffect(() => {
-        console.log("use effect called");
-
         ; (async () => {
             try {
-                console.log("Making request to /user/profile");
                 const response = await axios.get("http://localhost:5000/user/profile", {
                     withCredentials: true,
                 });
 
-                setUserGeneralData({
-                    fullName: response.data.data.fullName,
-                    email: response.data.data.email,
-                    username: response.data.data.username
-                })
-
-                setUserAcademicData({
-
-                    enrollmentNo: response.data.data.enrollmentNo,
-                    year: response.data.data.year,
-                    semester: response.data.data.semester
-                });
-
                 setAvatar(response.data.data.avatar);
+                setFirsttime(response.data.data.firstTime ?? false);
 
                 if (response.data.data.role === "Faculty") {
                     navigate('/facultyProfile');
@@ -144,50 +122,52 @@ const ProfilePage = () => {
     const handleAddButtonClick = async (e) => {
         setIsSubmiting(true);
 
-        console.log(img)
-        if (img === null) {
+        if (img === null && avatar === null) {
             console.log("img is required")
             toast.error("Profile picture required")
         }
         else {
 
-            let validExtensions = ['jpg', 'jpeg'];
-            let position_of_dot = img.name.lastIndexOf(".");
-            let img_extension = img.name.substring(position_of_dot + 1);
-            let result = validExtensions.includes(img_extension);
-            console.log(result)
-            if (result === false) {
-                toast.error("Please upload an image in either JPG or JPEG format");
-            }
-
-            else {
-                console.log("img state updated:", img);
-                const userData = {
-                    username: formik.values.ProfileGeneralForm.username,
-                    enrollmentNo: formik.values.ProfileAcademicForm.enrollmentNo,
-                    year: formik.values.ProfileAcademicForm.year,
-                    semester: formik.values.ProfileAcademicForm.semester,
-                    avatar: img
-                };
-
-                console.log("user data" + userData)
-
-                try {
-
-                    const response = await axios.post("http://localhost:5000/user/profile", userData, {
-                        headers: {
-                            'Content-Type': "multipart/form-data"
-                        },
-                        withCredentials: true
-                    });
-                    console.log(response)
-
-                } catch (error) {
-                    console.log("error in submit  :: " + error)
+            if (img) {
+                let validExtensions = ['jpg', 'jpeg'];
+                let position_of_dot = img?.name?.lastIndexOf(".");
+                let img_extension = img?.name?.substring(position_of_dot + 1);
+                let result = validExtensions.includes(img_extension);
+                if (result === false) {
+                    toast.error("Please upload an image in either JPG or JPEG format");
                 }
             }
 
+            try {
+                const formData = new FormData();
+
+                formData.append("username", generalData.username);
+                formData.append("email", generalData.email);
+                formData.append("enrollmentNo", academicData.enrollmentNo);
+                formData.append("year", academicData.year);
+                formData.append("semester", academicData.semester);
+
+                if (img instanceof File) {
+                    formData.append("avatar", img);
+                }
+
+                const response = await axios.post("http://localhost:5000/user/updatestudentprofile", formData, {
+                    headers: {
+                        'Content-Type': "multipart/form-data"
+                    },
+                    withCredentials: true
+                });
+
+                if (response.status === 200) {
+                    navigate('/dashboard/');
+                }
+
+            } catch (error) {
+                console.log("error in submit  :: " + error)
+            }
         }
+
+
 
     };
 
@@ -197,28 +177,35 @@ const ProfilePage = () => {
     }
 
     const handleImgChange = (e) => {
-        console.log(e)
+        setAvatar(null);
         const file = e.target?.files[0];
         console.log(file);
         setImg(file)
     }
 
+    const receiveDataFromGeneralForm = (data) => {
+        setGeneralData(data);
+    };
+
+    const receiveDataFromAcademicForm = (data) => {
+        setAcademicData(data);
+    };
 
 
     return (
         <>
 
-            <div className='lg:block flex flex-col items-center h-screen' style={{ backgroundImage: `url(${topPattern})` }} >
+            <div className='lg:block flex flex-col items-center h-screen' style={firstTime ? {} : { backgroundImage: `url(${topPattern})` }} >
 
-
+                {firstTime ? <ParticlesBg /> : <></>}
                 {/* //profile photo div */}
                 <form action="" className='w-11/12 flex flex-col items-center lg:block' onSubmit={formik.handleSubmit}>
-                    <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' onClick={handleImgClick}>
+                    <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' >
                         {avatar ? <>
                             <Avatar src={avatar} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
                         </> : <>
-                            {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' />
-                                : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} />}
+                            {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
+                                : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} onClick={handleImgClick} />}
                         </>}
 
                         <Toaster
@@ -238,13 +225,14 @@ const ProfilePage = () => {
                         {/* general form */}
                         <div className='flex flex-col w-1/4'>
                             <h1 className='text-2xl 2xl:text-2xl'>General Infromation</h1>
-                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting} userdata={userGeneralData} />
+                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting}
+                                sendDataToParent={receiveDataFromGeneralForm} />
                         </div>
 
                         {/* academic form */}
                         <div className='flex flex-col w-1/4'>
                             <h1 className='text-white text-2xl 2xl:text-2xl'>Academic Information</h1>
-                            <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} userdata={userAcademicData}/>
+                            <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} sendDataToParent={receiveDataFromAcademicForm} />
                         </div>
                     </div>
 
@@ -266,13 +254,14 @@ const ProfilePage = () => {
                         <div>
                             <p className='text-2xl mt-10 text-center'>{isGeneralInfo ? 'General Information' : 'Academic Information'}</p>
 
-                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} userEmail={userEmail} userFullname={userFullname} formik={formik} isSubmiting={isSubmiting} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm} />}
+                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} sendDataToParent={receiveDataFromGeneralForm} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm}
+                                sendDataToParent={receiveDataFromAcademicForm} />}
                         </div>
 
                     </div >
                     <div className='flex justify-end w-11/12 xl:hidden'>
                         {!isGeneralInfo ? <button type='submit' className={`bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
-  hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10`} onClick={handleAddButtonClick} >Add</button> : ""}
+  hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10`} onClick={handleAddButtonClick} >{firstTime ? 'Add' : 'Update'}</button> : ""}
                     </div>
                 </form>
 
