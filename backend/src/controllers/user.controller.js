@@ -342,15 +342,15 @@ const updateFacultyProfile = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path || null;
     let uploadResult;
 
-     if (avatarLocalPath) {
-         uploadResult = await uploadOnCloudinary(avatarLocalPath, "avatar");
- 
-         if (!uploadResult) {
-             throw new ApiError(401, 'Problem in uploading the image onto the cloudinary');
-         }
+    if (avatarLocalPath) {
+        uploadResult = await uploadOnCloudinary(avatarLocalPath, "avatar");
 
-         console.log(uploadResult)
-     }
+        if (!uploadResult) {
+            throw new ApiError(401, 'Problem in uploading the image onto the cloudinary');
+        }
+
+        console.log(uploadResult)
+    }
 
     const updatedFaculty = await Faculty.findOneAndUpdate(
         { _id: _id },
@@ -368,36 +368,36 @@ const updateFacultyProfile = asyncHandler(async (req, res) => {
 });
 
 const updateStudentProfile = asyncHandler(async (req, res) => {
-console.log("update page")
-    const {username, email, year , semester, enrollmentNo}  = req.body;
-    const {_id} = req.user;
-console.log(username, email, year , semester, enrollmentNo)
+    console.log("update page")
+    const { username, email, year, semester, enrollmentNo } = req.body;
+    const { _id } = req.user;
+    console.log(username, email, year, semester, enrollmentNo)
     const avatarLocalPath = req.file?.path;
 
     let uploadResult;
     let avatarUpdate;
-    if(avatarLocalPath) {
+    if (avatarLocalPath) {
         uploadResult = await uploadOnCloudinary(avatarLocalPath, "avatar");
 
-        if(!uploadResult) {
+        if (!uploadResult) {
             throw new ApiError(402, "Problem while uploading the avatar onto the cloudinary.")
         }
-        
+
         avatarUpdate = await Student.findOneAndUpdate(
-            {_id : _id},
-            {$set: {avatar:uploadResult.url}},
-            {new : true}
+            { _id: _id },
+            { $set: { avatar: uploadResult.url } },
+            { new: true }
         );
     }
 
     const result = await Student.findOneAndUpdate(
-        {_id : _id},
-        {$set: {username : username, email: email, year: year, semester: semester, enrollmentNo: enrollmentNo, firstTime: false}},
-        {new : true}
+        { _id: _id },
+        { $set: { username: username, email: email, year: year, semester: semester, enrollmentNo: enrollmentNo, firstTime: false } },
+        { new: true }
     );
 
-    if(!result) {
-        throw new ApiError(402,"Error in updating the data");
+    if (!result) {
+        throw new ApiError(402, "Error in updating the data");
     }
 
     res.status(200).json(

@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import image from '../../assets/pro.svg';
+import { Triangle } from 'react-loader-spinner';
 
 const FacultyProfilePage = () => {
 
@@ -27,6 +28,7 @@ const FacultyProfilePage = () => {
     });
 
     const [firstTime, setFirsttime] = useState(false);
+    const [loader, setLoader] = useState(false);
 
 
     const validationSchema = Yup.object({
@@ -45,7 +47,6 @@ const FacultyProfilePage = () => {
 
         ; (async () => {
             try {
-                console.log("Making request to /user/profile");
                 const response = await axios.get("http://localhost:5000/user/profile", {
                     withCredentials: true,
                 });
@@ -112,48 +113,47 @@ const FacultyProfilePage = () => {
                 toast.error("Profile picture required")
             }
             else {
+                if (img) {
 
-                let validExtensions = ['jpg', 'jpeg'];
-                let position_of_dot = img.name.lastIndexOf(".");
-                let img_extension = img.name.substring(position_of_dot + 1);
-                let result = validExtensions.includes(img_extension);
-                console.log(result)
-                if (result === false) {
-                    toast.error("Please upload an image in either JPG or JPEG format");
+                    let validExtensions = ['jpg', 'jpeg'];
+                    let position_of_dot = img.name.lastIndexOf(".");
+                    let img_extension = img.name.substring(position_of_dot + 1);
+                    let result = validExtensions.includes(img_extension);
+                    console.log(result)
+                    if (result === false) {
+                        toast.error("Please upload an image in either JPG or JPEG format");
+                    }
                 }
 
-                else {
+                await validationSchema.validate(userData, { abortEarly: false });
+
+                const formData = new FormData();
+
+                if (img instanceof File) {
+                    formData.append("avatar", img);
+                }
+                formData.append("username", userData.username);
+                formData.append("email", userData.email);
 
 
-                    await validationSchema.validate(userData, { abortEarly: false });
+                try {
+                    setLoader(true);
+                    const response = await axios.post("http://localhost:5000/user/updateprofile", formData, {
+                        headers: {
+                            'Content-Type': "multipart/form-data"
+                        },
+                        withCredentials: true
+                    });
 
-                    const formData = new FormData();
-
-                    if (img instanceof File) {
-                        formData.append("avatar", img);
+                    if (response.status === 200) {
+                        setLoader(false);
+                        navigate('/admindashboard?from=profile');
                     }
-                    formData.append("username", userData.username);
-                    formData.append("email", userData.email);
-                   
 
-                    try {
+                } catch (error) {
+                    console.log("error in submit  :: " + error)
 
-                        const response = await axios.post("http://localhost:5000/user/updateprofile", formData, {
-                            headers: {
-                                'Content-Type': "multipart/form-data"
-                            },
-                            withCredentials: true
-                        });
 
-                        if (response.status === 200) {
-                            navigate('/admindashboard?from=profile');
-
-                        }
-
-                    } catch (error) {
-                        console.log("error in submit  :: " + error)
-                        
-                    }
                 }
             }
         } catch (error) {
@@ -178,11 +178,21 @@ const FacultyProfilePage = () => {
     return (
         <>
 
-            <div className='lg:block flex flex-col items-center  min-h-screen overflow-y-hidden lg:mb-5 bg-repeat' style={firstTime ? {} : { backgroundImage: `url(${image})`, backgroundRepeat: 'repeat' }}>
-
+            <div className='lg:block flex flex-col items-center  min-h-screen overflow-y-hidden lg:mb-5 bg-repeat' style={firstTime ? {} : loader ? {} : { backgroundImage: `url(${image})`, backgroundRepeat: 'repeat' }}>
+                <div className={`w-full flex justify-center items-center absolute  translate-y-1/6 translate-x-1/6 h-screen ${loader ? 'block' : 'hidden'}`} >
+                    <Triangle
+                        visible={true}
+                        height="100"
+                        width="100"
+                        color="#9290C3"
+                        ariaLabel="triangle-loading"
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                    />
+                </div>
                 {firstTime ? <ParticlesBg /> : <></>}
                 {/* //profile photo div */}
-                <form action="" className='w-11/12 flex flex-col items-center lg:block' >
+                <form action="" className={`w-11/12 flex flex-col items-center lg:block ${loader ? 'blur-lg' : '' }`} >
                     <div className='flex flex-col items-center mt-5 lg:mt-10 xl:mt-2 2xl:mt-14 gap-0' >
                         {avatar ? <>
                             <Avatar src={avatar} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />

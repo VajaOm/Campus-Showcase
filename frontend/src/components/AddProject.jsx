@@ -4,6 +4,8 @@ import UploadFields from './UploadFields';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import topPattern from '../assets/add_project_pattern.png';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Triangle } from 'react-loader-spinner';
 
 function AddProject({ showMenu }) {
     const [dragActive, setDragActive] = useState(false);
@@ -21,6 +23,9 @@ function AddProject({ showMenu }) {
         sourceCode: [],
         ppt: []
     });
+
+    const navigate = useNavigate();
+    const [loader, setLoader] = useState(false);
 
     const validationSchema = Yup.object({
         title: Yup.string().required(() => (
@@ -85,6 +90,8 @@ function AddProject({ showMenu }) {
     }
 
 
+
+
     const addProjectBtnHandler = async (e) => {
         e.preventDefault();
 
@@ -134,14 +141,14 @@ function AddProject({ showMenu }) {
                     formData.append(`sourceCode`, textFile);
                 } catch (error) {
                     console.error("Error processing source code file:", error);
-                    throw error; 
+                    throw error;
                 }
             });
 
             await Promise.all(sourceCodeUploadPromises);
 
             try {
-
+                setLoader(true)
                 const response = await axios.post("http://localhost:5000/project/addproject", formData, {
                     headers: {
                         'Content-Type': "multipart/form-data"
@@ -149,6 +156,12 @@ function AddProject({ showMenu }) {
                     withCredentials: true
                 });
                 console.log(response);
+
+                setProgress(40)
+                if (response.status === 201) {
+                    setProgress(100)
+                    navigate('/dashboard/');
+                }
 
             } catch (error) {
                 console.log("Error in adding a project ::: " + error);
@@ -165,11 +178,24 @@ function AddProject({ showMenu }) {
 
     return (
         <div
-            className={`flex justify-center w-full sm:justify-start sm:w-full md:w-11/12 lg:w-9/12 box-border overflow-y-auto flex-1 ${showMenu ? 'filter blur-sm' : ''}` } style={{ backgroundImage: `url(${topPattern})` }}
+            className={` flex flex-col items-center justify-center w-full sm:justify-start sm:w-full md:w-11/12 relative  box-border overflow-y-auto flex-1 lg:w-full ${showMenu ? 'filter blur-sm' : ''} h-screen`} style={loader ? {} :{ backgroundImage: `url(${topPattern})` }}
 
         >
 
-            <form action="" method='post' encType='multipart/form-data' onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className='w-10/12 sm:w-full md:w-full lg:w-full flex justify-center '>
+
+            <div className={`w-full flex justify-center items-center absolute translate-y-2/12 h-screen ${loader ? 'block' : 'hidden'}`} >
+                <Triangle
+                    visible={true}
+                    height="100"
+                    width="100"
+                    color="#9290C3"
+                    ariaLabel="triangle-loading"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                />
+            </div>
+
+            <form action="" method='post' encType='multipart/form-data' onSubmit={addProjectBtnHandler} onDragEnter={handleDrag} className={`w-10/12 sm:w-full lg:w-9/12 md:w-full  flex justify-center ${loader ? 'blur-lg ' : ''} `}>
                 <div className={`flex flex-col sm:mx-10 md:w-full sm:w-full w-full `}>
                     <p className="text-slate-100 text-2xl lg:text-3xl mt-14 2xl:text-3xl lg:mt-5 ">Add Project</p>
 
@@ -214,6 +240,10 @@ function AddProject({ showMenu }) {
                     </div>
                 </div>
             </form>
+
+
+
+
         </div>
     );
 }

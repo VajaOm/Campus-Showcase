@@ -49,7 +49,7 @@ export default function EventsPage() {
 
     return (
         <div>
-            <div className='mt-10 ' style={{ backgroundImage: `url(${topPattern})` }} >
+            <div className='mt-10 min-h-screen' style={{ backgroundImage: `url(${topPattern})` }} >
               <h1 className='text-xl lg:text-4xl'>Events</h1>
                 
                 <div className='mt-10 flex justify-center'>

@@ -14,9 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
 import toast, { Toaster } from 'react-hot-toast';
 import topPattern from '../assets/add_project_pattern.png';
+import loader from '../assets/loader.png';
+import { Triangle } from 'react-loader-spinner';
 
-
-const ProfilePage = () => {
+const StudentProfilePage = ({ setProgress }) => {
 
     const [userEmail, setUserEmail] = useState("");
     const [userFullname, setUserFullname] = useState("");
@@ -30,6 +31,7 @@ const ProfilePage = () => {
     const [firstTime, setFirsttime] = useState(false);
     const [generalData, setGeneralData] = useState({});
     const [academicData, setAcademicData] = useState({});
+    const [loader, setLoader] = useState(false);
 
     const formIdPrefixFirstForm = "firstForm";
     const formIdPrefixSecondForm = "secondForm";
@@ -95,6 +97,9 @@ const ProfilePage = () => {
 
 
     useEffect(() => {
+
+
+
         ; (async () => {
             try {
                 const response = await axios.get("http://localhost:5000/user/profile", {
@@ -121,6 +126,7 @@ const ProfilePage = () => {
     //add btn handler
     const handleAddButtonClick = async (e) => {
         setIsSubmiting(true);
+        
 
         if (img === null && avatar === null) {
             console.log("img is required")
@@ -150,7 +156,7 @@ const ProfilePage = () => {
                 if (img instanceof File) {
                     formData.append("avatar", img);
                 }
-
+                setLoader(true)
                 const response = await axios.post("http://localhost:5000/user/updatestudentprofile", formData, {
                     headers: {
                         'Content-Type': "multipart/form-data"
@@ -159,12 +165,14 @@ const ProfilePage = () => {
                 });
 
                 if (response.status === 200) {
+                    setLoader(false);
                     navigate('/dashboard/');
                 }
 
             } catch (error) {
                 console.log("error in submit  :: " + error)
             }
+
         }
 
 
@@ -195,79 +203,95 @@ const ProfilePage = () => {
     return (
         <>
 
-            <div className='lg:block flex flex-col items-center h-screen' style={firstTime ? {} : { backgroundImage: `url(${topPattern})` }} >
 
-                {firstTime ? <ParticlesBg /> : <></>}
-                {/* //profile photo div */}
-                <form action="" className='w-11/12 flex flex-col items-center lg:block' onSubmit={formik.handleSubmit}>
-                    <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' >
-                        {avatar ? <>
-                            <Avatar src={avatar} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
-                        </> : <>
-                            {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
-                                : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} onClick={handleImgClick} />}
-                        </>}
+            <div className='relative'>
+                <div className={`w-full flex justify-center items-center  lg:-translate-y-20 lg:-translate-x-12  absolute  h-full ${loader ? 'block' : 'hidden'} `} >
+                    <Triangle
+                        visible={true}
+                        height="100"
+                        width="100"
+                        color="#9290C3"
+                        ariaLabel="triangle-loading"
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                    />
+                </div>
 
-                        <Toaster
-                            position="top-center"
-                            reverseOrder={false}
-                        />
-
-                        <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} />
-                        <p className='text-md md:text-lg'>Profile photo</p>
-
-                    </div>
+                <div className='lg:block flex flex-col items-center h-screen ' style={firstTime ? {} : loader ? {} : { backgroundImage: `url(${topPattern})` }} >
 
 
-                    {/* //forms div */}
-                    <div className='lg:flex justify-around hidden 2xl:mt-14'>
+                    {firstTime ? <ParticlesBg /> : <></>}
+                    {/* //profile photo div */}
+                    <form action="" className={`w-11/12 flex flex-col items-center lg:block ${loader ? 'blur-lg' : ''} `} onSubmit={formik.handleSubmit}>
+                        <div className='flex flex-col items-center mt-5 md:mt-10 xl:mt-2 2xl:mt-14' >
+                            {avatar ? <>
+                                <Avatar src={avatar} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
+                            </> : <>
+                                {img ? <Avatar src={URL.createObjectURL(img)} alt='profile picture' sx={{ width: 150, height: 150 }} className='border-2 ' onClick={handleImgClick} />
+                                    : <AccountCircleOutlinedIcon sx={{ fontSize: 120, color: '#9290C3' }} onClick={handleImgClick} />}
+                            </>}
 
-                        {/* general form */}
-                        <div className='flex flex-col w-1/4'>
-                            <h1 className='text-2xl 2xl:text-2xl'>General Infromation</h1>
-                            <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting}
-                                sendDataToParent={receiveDataFromGeneralForm} />
+                            <Toaster
+                                position="top-center"
+                                reverseOrder={false}
+                            />
+
+                            <input type='file' className='hidden' ref={inputRef} onChange={handleImgChange} />
+                            <p className='text-md md:text-lg'>Profile photo</p>
+
                         </div>
 
-                        {/* academic form */}
-                        <div className='flex flex-col w-1/4'>
-                            <h1 className='text-white text-2xl 2xl:text-2xl'>Academic Information</h1>
-                            <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} sendDataToParent={receiveDataFromAcademicForm} />
-                        </div>
-                    </div>
 
-                    {/* //add button div */}
-                    <div className='lg:flex hidden justify-end w-11/12 '>
-                        <button type='submit' className='bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
+                        {/* //forms div */}
+                        <div className='lg:flex justify-around hidden 2xl:mt-14'>
+
+                            {/* general form */}
+                            <div className='flex flex-col w-1/4'>
+                                <h1 className='text-2xl 2xl:text-2xl'>General Infromation</h1>
+                                <ProfileGeneralForm formik={formik} userEmail={userEmail} userFullname={userFullname} formIdPrefix={formIdPrefixFirstForm} isSubmiting={isSubmiting}
+                                    sendDataToParent={receiveDataFromGeneralForm} />
+                            </div>
+
+                            {/* academic form */}
+                            <div className='flex flex-col w-1/4'>
+                                <h1 className='text-white text-2xl 2xl:text-2xl'>Academic Information</h1>
+                                <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixFirstForm} sendDataToParent={receiveDataFromAcademicForm} />
+                            </div>
+                        </div>
+
+                        {/* //add button div */}
+                        <div className='lg:flex hidden justify-end w-11/12 '>
+                            <button type='submit' className='bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
                           hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10' onClick={handleAddButtonClick} >Add</button>
-                    </div>
-
-
-
-                    {/* mobile  */}
-                    <div className='lg:hidden flex border-2 rounded-md border-[#9290C3] flex-col w-11/12 p-5 mt-10  '>
-
-                        <div className='flex '>
-                            <div className='inline-block w-1/2'><button type='button' className={`bg-[#9290C3] rounded-l-md w-full text-black px-4 py-2 font-semibold hover:bg-[#535C91] text-lg ${isGeneralInfo ? 'bg-[#535C91]' : ''}`} onClick={generalBtnClickHandler}>General</button></div>
-                            <div className='w-1/2'><button type='button' className={`bg-[#9290C3] w-full rounded-r-md text-black px-2 py-2 font-semibold hover:bg-[#535C91] text-lg ${!isGeneralInfo ? 'bg-[#535C91]' : ''}`} onClick={academicBtnClickHandler}>Academic</button></div>
-                        </div>
-                        <div>
-                            <p className='text-2xl mt-10 text-center'>{isGeneralInfo ? 'General Information' : 'Academic Information'}</p>
-
-                            {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} sendDataToParent={receiveDataFromGeneralForm} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm}
-                                sendDataToParent={receiveDataFromAcademicForm} />}
                         </div>
 
-                    </div >
-                    <div className='flex justify-end w-11/12 xl:hidden'>
-                        {!isGeneralInfo ? <button type='submit' className={`bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
+
+
+                        {/* mobile  */}
+                        <div className='lg:hidden flex border-2 rounded-md border-[#9290C3] flex-col w-11/12 p-5 mt-10  '>
+
+                            <div className='flex '>
+                                <div className='inline-block w-1/2'><button type='button' className={`bg-[#9290C3] rounded-l-md w-full text-black px-4 py-2 font-semibold hover:bg-[#535C91] text-lg ${isGeneralInfo ? 'bg-[#535C91]' : ''}`} onClick={generalBtnClickHandler}>General</button></div>
+                                <div className='w-1/2'><button type='button' className={`bg-[#9290C3] w-full rounded-r-md text-black px-2 py-2 font-semibold hover:bg-[#535C91] text-lg ${!isGeneralInfo ? 'bg-[#535C91]' : ''}`} onClick={academicBtnClickHandler}>Academic</button></div>
+                            </div>
+                            <div>
+                                <p className='text-2xl mt-10 text-center'>{isGeneralInfo ? 'General Information' : 'Academic Information'}</p>
+
+                                {isGeneralInfo ? <ProfileGeneralForm formIdPrefix={formIdPrefixSecondForm} formik={formik} isSubmiting={isSubmiting} sendDataToParent={receiveDataFromGeneralForm} /> : <ProfileAcademicForm formik={formik} isSubmiting={isSubmiting} formIdPrefix={formIdPrefixSecondForm}
+                                    sendDataToParent={receiveDataFromAcademicForm} />}
+                            </div>
+
+                        </div >
+                        <div className='flex justify-end w-11/12 xl:hidden'>
+                            {!isGeneralInfo ? <button type='submit' className={`bg-[#9290C3] text-black font-semibold lg:w-24 w-2/5 px-0 py-2 rounded-lg text-lg
   hover:bg-[#535C91] hover:scale-105 transition duration-500  mt-5 mb-0 2xl:mt-10`} onClick={handleAddButtonClick} >{firstTime ? 'Add' : 'Update'}</button> : ""}
-                    </div>
-                </form>
+                        </div>
+                    </form>
 
+                </div>
             </div>
         </>
     );
 }
 
-export default ProfilePage;
+export default StudentProfilePage;

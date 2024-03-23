@@ -13,18 +13,20 @@ import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/Faculty/AdminDashboard';
 // import ProtectRoute from './ProtectRoute';
 
+
 function App() {
+  
 
   return (
     <>
+    
       <Routes>
-
         <Route path='/' element={<Login />} />
         <Route path='/registration' element={<Registration />} />
         <Route path='/resetpassword' element={<PageNotFound />} />
-        <Route path='/studentProfile' element={<StudentProfilePage />} />
+        <Route path='/studentProfile' element={<StudentProfilePage /> } />
         <Route path='/facultyProfile' element={<FacultyProfilePage />} />
-        <Route path='/dashboard/*' element={<Dashboard />} />
+        <Route path='/dashboard/*' element={<Dashboard   />} />
         <Route path='/admindashboard/*' element={<AdminDashboard />} />
       </Routes>
 

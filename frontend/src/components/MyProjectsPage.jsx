@@ -82,14 +82,15 @@ function MyProjectsPage({ showMenu }) {
     }
   }
 
-  const editBtnClickHandler = () => {
-    navigate(`/dashboard/myprojects/editproject/${project._id}`)
+  const editBtnClickHandler = (e, project) => {
+    e.preventDefault();
+    navigate(`/dashboard/myprojects/editproject/${project._id}`);
   }
-
+  
   return (
     <>
 
-      <div className='w-full flex justify-center lg:justify-start mt-8 sm:mt-0 lg:mt-8 xl:mt-0' style={{ backgroundImage: `url(${topPattern})` }}>
+      <div className='w-full flex justify-center lg:justify-start mt-8 sm:mt-0 lg:mt-8 xl:mt-0 min-h-screen' style={{ backgroundImage: `url(${topPattern})` }}>
         <div className={`flex flex-col lg:w-10/12 w-11/12 ${showMenu ? 'filter blur-sm' : ''}`}>
           <p className="text-slate-100 text-3xl sm:text-4xl mt-10">My Projects</p>
           <input
@@ -116,7 +117,7 @@ function MyProjectsPage({ showMenu }) {
                   </div>
                   <div className='flex'>
                     <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeleteClickOpen(project._id) }}><DeleteIcon className='mr-4' /></button>
-                    <button onClick={editBtnClickHandler} ><AddToPhotosOutlinedIcon /></button>
+                    <button onClick={(e) => editBtnClickHandler(e, project)}> {/* Pass project as an argument */} <AddToPhotosOutlinedIcon /></button>
                   </div>
                 </div>
               </Link>

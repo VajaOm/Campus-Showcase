@@ -48,7 +48,7 @@ export default function Events() {
 
     return (
         <div>
-            <div className='mt-10 ' style={{ backgroundImage: `url(${image})` }}>
+            <div className='mt-10 h-screen' style={{ backgroundImage: `url(${image})` }}>
                 <div className='mt-14 lg:ml-12 text-white'>
                     <Link to={`/admindashboard`} className='ml-5 lg:ml-0 text-lg p-2 hover:bg-[#1B1A55] rounded-md duration-300'><ArrowBackIcon />Back</Link>
                 </div>

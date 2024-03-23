@@ -10,12 +10,14 @@ import EventDetails from './EventDetails';
 import logo from '../../assets/logo.png';
 import axios from 'axios';
 import FacultyProfilePage from './FacultyProfilePage';
+import LoadingBar from 'react-top-loading-bar';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
     const [avatar, setAvatar] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [progress, setProgress] = useState(0);
 
     const eventBtnClickHandler = () => {
         navigate('/admindashboard/events');
@@ -69,8 +71,17 @@ export default function AdminDashboard() {
         navigate('/admindashboard/profile');
     };
 
+    useEffect(() => {
+
+        setProgress(40);
+
+        setTimeout(() => {
+            setProgress(100)
+        }, 1000)
+    }, [navigate]);
+
     return (
-        <div className=''>
+        <div>
             <nav className='flex justify-between border-b-2 items-baseline'>
                 <div className='flex items-baseline'>
                     <h1 className='text-md'> <img src={logo} alt="" className='w-10 inline-block ' /> Project Showcase</h1>
@@ -89,6 +100,11 @@ export default function AdminDashboard() {
                 </div>
             </nav>
             <div >
+                <LoadingBar
+                    color='#9290C3'
+                    progress={progress}
+                    onLoaderFinished={() => setProgress(0)}
+                />
                 <Routes >
                     <Route path='/students/:semester' element={<Students />}></Route>
                     <Route path='/projects/:semester/:id' element={<Projects />}></Route>

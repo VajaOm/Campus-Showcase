@@ -15,7 +15,7 @@ const addProject = asyncHandler(async (req, res) => {
     let user;
 
     const { _id } = req.user;
-
+    
     user = await Student.findById(_id);
 
     if (!user) {

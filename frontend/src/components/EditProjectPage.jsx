@@ -6,6 +6,8 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CloseIcon from '@mui/icons-material/Close';
 import * as Yup from 'yup';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import topPattern from '../assets/add_project_pattern.png';
+import { Triangle } from 'react-loader-spinner';
 
 export default function EditProjectPage() {
   const { projectId } = useParams();
@@ -25,6 +27,7 @@ export default function EditProjectPage() {
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -319,7 +322,7 @@ export default function EditProjectPage() {
         console.log('Type:', file.type);
         // You can perform other operations on the 'file' object as needed
       });
-
+      setLoader(true)
       const response = await axios.put(`http://localhost:5000/project/getprojectdata/${projectId}/updateProject`, formData, {
         headers: {
           'Accept': 'application/json',
@@ -330,6 +333,7 @@ export default function EditProjectPage() {
 
       console.log(response)
       if (response.status === 200) {
+        setLoader(false)
         navigate("/dashboard/myprojects")
         console.log('Project updated successfully');
       } else {
@@ -347,10 +351,25 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className={`mt-14 w-full flex flex-col ${selectedImage} relative md:text-lg`}>
-      <Link to={'/dashboard/myprojects'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
+    <div className={`mt-14 w-full flex flex-col ${selectedImage} relative md:text-lg h-screen`} style={loader ? {} : { backgroundImage: `url(${topPattern})` }}>
 
-      <div className='flex flex-col ml-5 lg:ml-0'>
+
+      <div className={`w-full flex justify-center items-center absolute translate-y-2/12 h-screen ${loader ? 'block' : 'hidden'}`} >
+        <Triangle
+          visible={true}
+          height="100"
+          width="100"
+          color="#9290C3"
+          ariaLabel="triangle-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
+
+
+
+      <div className={`flex flex-col ml-5 lg:ml-0 ${loader ? 'blur-lg ' : ''}`}>
+      <Link to={'/dashboard/myprojects'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
         <div className='w-11/12 flex flex-col items-center mt-10 gap-y-6 lg:gap-y-8'>
           <div className='w-full flex flex-col '>
             <div className='flex justify-between'>
@@ -611,11 +630,11 @@ export default function EditProjectPage() {
 
         </div>
 
-      </div>
-
       <div className='w-full lg:w-11/12 flex justify-center'>
         <button className='lg:w-1/4 p-4 bg-[#9290C3] text-black mb-10 mt-10 w-11/12 text-lg rounded-lg hover:bg-[#535C91] font-bold' onClick={updateBtnClickHandler}>Update</button>
       </div>
+      </div>
+
 
     </div >
   );
