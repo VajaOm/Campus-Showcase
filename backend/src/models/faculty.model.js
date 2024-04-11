@@ -67,6 +67,7 @@ const facultySchema = mongoose.Schema(
 );
 
 const passwordEncryption = async function(next) {
+    console.log("password encrytion ")
     if(this.isModified("password")) {
         this.password = await hashPassword(this.password);
         next();

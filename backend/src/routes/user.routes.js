@@ -1,5 +1,21 @@
-import {Router} from 'express';
-import { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects, updateFacultyProfile, updateStudentProfile } from '../controllers/user.controller.js';
+import { Router } from 'express';
+import {
+    registerUser,
+    loginUser,
+    logoutUser,
+    getUserProfileData,
+    profileUpload,
+    getStudents,
+    getStudentProjects,
+    updateFacultyProfile,
+    updateStudentProfile,
+    sendVerificationEmail,
+    verifyToken,
+    passwordResetEmail,
+    verifyPasswordResetToken,
+    passwordeUpdate
+} from '../controllers/user.controller.js';
+
 import { veriJwt } from '../middlewares/auth.middleware.js';
 
 import { upload } from '../middlewares/multer.middleware.js';
@@ -13,9 +29,9 @@ router.route("/login").post(loginUser);
 
 router.route("/profile").get(veriJwt, getUserProfileData).post(veriJwt, upload.single('avatar'), profileUpload)
 
-router.route("/getstudents/:semester").get(veriJwt,validateFaculty, getStudents);
+router.route("/getstudents/:semester").get(veriJwt, validateFaculty, getStudents);
 
-router.route("/getstudentprojects/:id").get(veriJwt,validateFaculty, getStudentProjects);
+router.route("/getstudentprojects/:id").get(veriJwt, validateFaculty, getStudentProjects);
 
 router.route("/logout").get(veriJwt, logoutUser);
 
@@ -25,5 +41,11 @@ router.route("/updateprofile").post(veriJwt, updateFacultyProfile);
 router.route("/updatestudentprofile").post(veriJwt, upload.single("avatar"), updateStudentProfile);
 router.route("/updatestudentprofile").post(veriJwt, updateStudentProfile);
 
+router.route("/sendverificationEmail").get(sendVerificationEmail);
+router.route("/verify/:role/:id/:token").get(verifyToken);
+
+router.route("/passwordResetEmail").post(passwordResetEmail);
+router.route("/verifyPasswordResetToken/:role/:id/:token").get(verifyPasswordResetToken);
+router.route("/passwordeUpdate/:role/:id").post(passwordeUpdate);
 
 export default router;

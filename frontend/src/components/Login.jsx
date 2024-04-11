@@ -149,7 +149,7 @@ const Login = () => {
                         {errors.password && <div className='text-red-500'>{errors.password}</div>}
 
 
-                        <Link to='/resetpassword' element={<PageNotFound />} className='mt-2 ' > <span className='text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block'>Forgot password?</span> </Link>
+                        <Link to='/forgotPassword' element={<PageNotFound />} className='mt-2 ' > <span className='text-[#9290C3] hover:underline hover:scale-105 transition duration-300 inline-block'>Forgot password?</span> </Link>
 
                         <div className='flex justify-end mt-2 '>
                             <button className='bg-[#9290C3] text-black font-semibold sm:text-lg text-sm sm:mr-0 lg:w-1/5 w-full mt-5 px-3 lg:py-2 py-3 rounded-md hover:bg-[#535C91] hover:scale-105 transition duration-500 2xl:mt-5 lg:mt-0 '>Log in</button>

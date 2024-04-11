@@ -6,11 +6,13 @@ import { Student } from '../models/student.model.js';
 import { Faculty } from '../models/faculty.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { Project } from "../models/project.model.js";
+import { UserVerification } from '../models/userVerificationSchema.model.js';
+import { transporter } from '../utils/transporter.js';
+import { generateVerificationToken } from '../utils/jwtGeneration.js';
 
 const registerUser = asyncHandler(async (req, res) => {
     let createdUser;
     const { fullName, email, role, password } = req.body;
-
 
 
     if (role === "Student") {
@@ -51,6 +53,8 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!createdUser) {
         throw new ApiError(404, "Something wrong happening while user registration");
     }
+
+    await sendVerificationEmail(req, res, createdUser);
 
     return res.status(201).json(
         new ApiResponse(200, "User registered successfully", createdUser)
@@ -405,4 +409,206 @@ const updateStudentProfile = asyncHandler(async (req, res) => {
     )
 })
 
-export { registerUser, loginUser, logoutUser, getUserProfileData, profileUpload, getStudents, getStudentProjects, updateFacultyProfile, updateStudentProfile }
+const sendVerificationEmail = asyncHandler(async (req, res, createdUser) => {
+
+    const verificationToken = generateVerificationToken(createdUser);
+
+    const verificationLink = `http://localhost:${process.env.FRONTEND_PORT}/emailVerification/${createdUser.role}/${createdUser._id}/${verificationToken}`;
+
+    transporter.sendMail({
+        from: process.env.AUTH_EMAIL,
+        to: createdUser.email,
+        subject: 'Email Verification',
+        html: `<h1>Project Showcase</h1><br><p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>`
+    },
+        (error, info) => {
+            if (error) {
+                console.log(error);
+                throw new ApiError(500, "Problem in sending the verification link")
+            }
+            else {
+                console.log('Email sent : ' + info.response);
+                res.status(200).json(
+                    new ApiResponse(200, 'Email sent successfully', info.response)
+                )
+            }
+        }
+    )
+
+    const userVerification = await UserVerification.create({
+        token: verificationToken,
+        userId: createdUser._id,
+        idType: createdUser.role
+    });
+    await userVerification.save();
+})
+
+const verifyToken = asyncHandler(async (req, res) => {
+    try {
+        console.log("verify token rot")
+        const { token, id, role } = req.params;
+        console.log(id, role)
+        if (!token) {
+            throw new ApiError(401, 'Token is empty')
+        }
+
+        const isValid = await UserVerification.findOne({ token });
+
+        let user;
+
+        if (role === 'Student') {
+            user = await Student.findById(id);
+        }
+
+        else {
+            user = await Faculty.findById(id);
+        }
+
+        if (!isValid) {
+
+            if (!user) {
+                throw new ApiError(401, 'User not found');
+            }
+            await user.deleteOne();
+
+            throw new ApiError(403, 'Token is not found in the database');
+        }
+
+        user.isVerified = true;
+        await user.save();
+
+        res.status(200).json(
+            new ApiResponse(200, 'Email verification successfull', isValid)
+        )
+    } catch (error) {
+        console.log(error)
+    }
+
+})
+
+const passwordResetEmail = asyncHandler(async (req, res) => {
+    try {
+        console.log('password reset email route')
+        const { email, role } = req.body;
+
+        let user;
+        if (role === 'Student') {
+            user = await Student.findOne({ email });
+        }
+        else {
+            user = await Faculty.findOne({ email });
+        }
+
+        if (!user) {
+            throw new ApiError(401, 'User not exist.');
+        }
+
+        const verificationToken = generateVerificationToken(user);
+
+        const verificationLink = `http://localhost:${process.env.FRONTEND_PORT}/verifyPasswordResetToken/${role}/${user._id}/${verificationToken}`;
+
+        transporter.sendMail({
+            from: process.env.AUTH_EMAIL,
+            to: email,
+            subject: 'Password Reset',
+            html: `<h1>Project Showcase</h1><br><p>Please click <a href="${verificationLink}">here</a> to reset your password.</p>`
+        },
+            async (error, info) => {
+                if (error) {
+                    console.log(error);
+                    throw new ApiError(500, "Problem in sending the verification link")
+                }
+                else {
+                    console.log('Email sent : ' + info.response);
+                    const userVerification = await UserVerification.findOneAndUpdate(
+                        { userId: user._id },
+                        { $set: { passwordToken: verificationToken } },
+                        { new: true }
+                    );
+
+                    await userVerification.save();
+                    res.status(200).json(
+                        new ApiResponse(200, 'Email sent successfully', info.response)
+                    )
+                }
+            }
+        )
+    } catch (error) {
+        console.log(error)
+    }
+
+})
+
+const verifyPasswordResetToken = asyncHandler(async (req, res) => {
+    try {
+        const { token, id, role } = req.params;
+        // console.log(id, role)
+        console.log(token)
+        if (!token) {
+            throw new ApiError(401, 'Token is empty')
+        }
+
+        const status = await UserVerification.findOne({ passwordToken: token });
+
+        if (!status) {
+            throw new ApiError(403, 'Token is not found in the database');
+        }
+
+        res.status(200).json(
+            new ApiResponse(200, 'reset password token successfully matched', status)
+        )
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+const passwordeUpdate = asyncHandler(async (req, res) => {
+   try {
+     console.log*("password update ")
+     const { newPassword, confirmPassword } = req.body;
+     const { id, role } = req.params;
+
+     if (newPassword !== confirmPassword) {
+         throw new ApiError(401, 'Password not matched');
+     }
+ 
+     let user;
+     if (role === 'Student') {
+         user = await Student.findOne({ _id:id });
+     }
+     else {
+        user = await Faculty.findOne({ _id:id });
+     }
+ 
+     if (!user) {
+         throw new ApiError(401, 'User not exist.');
+     }
+
+    user.password = newPassword;
+    await user.save();
+ 
+     res.status(200).json(
+         new ApiResponse(200, 'password reset Successfully', user)
+     )
+   } catch (error) {
+    console.log(error)
+   }
+})
+
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    getUserProfileData,
+    profileUpload,
+    getStudents,
+    getStudentProjects,
+    updateFacultyProfile,
+    updateStudentProfile,
+    sendVerificationEmail,
+    verifyToken,
+    passwordResetEmail,
+    verifyPasswordResetToken,
+    passwordeUpdate
+}

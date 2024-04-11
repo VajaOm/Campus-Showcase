@@ -94,7 +94,7 @@ export default function Registration() {
         if (response.status === 201) {
           console.log(response.data.message);
           console.log("Registration successful");
-          navigate('/')
+          navigate('/emailVerification')
           setUserAlreadyExisted("");
         }
       } catch (error) {

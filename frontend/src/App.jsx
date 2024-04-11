@@ -11,8 +11,10 @@ import FacultyProfilePage from './components/Faculty/FacultyProfilePage';
 import AddProject from './components/AddProject';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/Faculty/AdminDashboard';
-// import ProtectRoute from './ProtectRoute';
-
+import EmailVerification from './components/EmailVerification';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import MidPage from './components/MidPage';
 
 function App() {
   
@@ -23,11 +25,16 @@ function App() {
       <Routes>
         <Route path='/' element={<Login />} />
         <Route path='/registration' element={<Registration />} />
-        <Route path='/resetpassword' element={<PageNotFound />} />
         <Route path='/studentProfile' element={<StudentProfilePage /> } />
         <Route path='/facultyProfile' element={<FacultyProfilePage />} />
         <Route path='/dashboard/*' element={<Dashboard   />} />
         <Route path='/admindashboard/*' element={<AdminDashboard />} />
+        <Route path='/emailVerification' element={<EmailVerification />} />
+        <Route path='/emailVerification/:role/:id/:token' element={<EmailVerification />} />
+        <Route path='/forgotPassword' element={<ForgotPassword />}/>
+        <Route path='/verifyPasswordResetToken/:role/:id/:token' element={<MidPage />} />
+        <Route path='/verifyPasswordResetToken' element={<MidPage />} />
+        <Route path='/resetPassword/:role/:id' element={<ResetPassword />} />
       </Routes>
 
 
