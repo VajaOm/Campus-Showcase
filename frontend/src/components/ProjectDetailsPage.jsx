@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useLocation  } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,7 +17,8 @@ const ProjectDetailsPage = () => {
         images: [],
         video: {},
         sourcecode: [],
-        ppt: {}
+        ppt: {},
+        suggestion: ''
     });
     const [selectedSourcecode, setSelectedSourcecode] = useState(null);
     const [selectedSourceCodeContent, setSelectedSourceCodeContent] = useState("");
@@ -28,7 +29,7 @@ const ProjectDetailsPage = () => {
     useEffect(() => {
 
         setIsMyProjectsPage(location.pathname.includes('/dashboard/myprojects'));
-       
+
 
         const fetchData = async () => {
             window.scrollTo(0, 0);
@@ -39,7 +40,7 @@ const ProjectDetailsPage = () => {
                         'Accept': 'application/json',
                     }
                 });
-                // console.log(response);
+                console.log(response);
                 // setTitle(response.data.data.title);
                 setProjectData({
                     title: response.data.data.title,
@@ -49,7 +50,8 @@ const ProjectDetailsPage = () => {
                     images: response.data.data.images,
                     video: response.data.data.video,
                     sourcecode: response.data.data.sourceCode,
-                    ppt: response.data.data.ppt
+                    ppt: response.data.data.ppt,
+                    suggestion: response.data.data.suggestion
                 })
 
             } catch (error) {
@@ -101,7 +103,7 @@ const ProjectDetailsPage = () => {
 
 
     return (
-        <div  style={{ backgroundImage: `url(${topPattern})` }}>
+        <div style={{ backgroundImage: `url(${topPattern})` }}>
             <div className='mt-14 text-white'>
                 <Link to={isMyProjectsPage ? '/dashboard/myprojects' : '/dashboard/explore'} className='ml-5 lg:ml-0 text-lg'><ArrowBackIcon />Back</Link>
             </div>
@@ -183,6 +185,14 @@ const ProjectDetailsPage = () => {
                                 <div className='text-center border-2 border-white rounded-md p-2'>No file yet</div>
                             )}
 
+                        </div>
+                    </div>
+
+                    <div>
+                        <h1 className='mb-5 lg:text-xl '><span className='underline'>Suggestions</span> :</h1>
+                        <div className='flex justify-center'>
+
+                            <p className='w-11/12 mb-10 text-sm'> {projectData.suggestion ? projectData.suggestion : 'No suggestion'}</p>
                         </div>
                     </div>
                 </div>

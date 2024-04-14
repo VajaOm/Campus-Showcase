@@ -43,7 +43,7 @@ function Dashboard() {
         <Routes>
           <Route path='/' element={<MyProjectsPage />}></Route>
           <Route path='myprojects' element={<MyProjectsPage />} ></Route>
-          <Route path='addproject' element={<AddProject  />}></Route>
+          <Route path='addproject' element={<AddProject setProgress={setProgress} />}></Route>
           <Route path='explore' element={<Explore />}></Route>
           <Route path='explore' element={<Explore />}></Route>
           <Route path='events' element={<EventsPage />}></Route>

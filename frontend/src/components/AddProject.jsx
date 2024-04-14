@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Triangle } from 'react-loader-spinner';
 
-function AddProject({ showMenu }) {
+function AddProject({ showMenu, setProgress }) {
     const [dragActive, setDragActive] = useState(false);
     const [errors, setErrors] = useState({});
     const [projectData, setProjectData] = useState({
