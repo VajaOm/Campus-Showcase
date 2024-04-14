@@ -15,6 +15,7 @@ import EmailVerification from './components/EmailVerification';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import MidPage from './components/MidPage';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   
@@ -23,12 +24,16 @@ function App() {
     <>
     
       <Routes>
-        <Route path='/' element={<Login />} />
-        <Route path='/registration' element={<Registration />} />
+        <Route element={<PrivateRoute />}>
+
         <Route path='/studentProfile' element={<StudentProfilePage /> } />
         <Route path='/facultyProfile' element={<FacultyProfilePage />} />
         <Route path='/dashboard/*' element={<Dashboard   />} />
         <Route path='/admindashboard/*' element={<AdminDashboard />} />
+
+        </Route>
+        <Route path='/registration' element={<Registration />} />
+        <Route path='/' element={<Login />} />
         <Route path='/emailVerification' element={<EmailVerification />} />
         <Route path='/emailVerification/:role/:id/:token' element={<EmailVerification />} />
         <Route path='/forgotPassword' element={<ForgotPassword />}/>

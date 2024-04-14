@@ -11,6 +11,7 @@ import logo from '../../assets/logo.png';
 import axios from 'axios';
 import FacultyProfilePage from './FacultyProfilePage';
 import LoadingBar from 'react-top-loading-bar';
+import PrivateRoute from '../PrivateRoute';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -106,14 +107,17 @@ export default function AdminDashboard() {
                     onLoaderFinished={() => setProgress(0)}
                 />
                 <Routes >
-                    <Route path='/students/:semester' element={<Students />}></Route>
-                    <Route path='/projects/:semester/:id' element={<Projects />}></Route>
-                    <Route path='/project/:semester/:projectId' element={<ProjectDetails />}></Route>
-                    <Route path='/' element={<Semester />}></Route>
-                    <Route path='/events/eventcreate' element={<EventCreation />}></Route>
-                    <Route path='/events/:eventId' element={<EventDetails />}></Route>
-                    <Route path='/profile' element={<FacultyProfilePage avatar={avatar} />}></Route>
-                    <Route path='/events' element={<Events />}></Route>
+                    <Route element={<PrivateRoute />}>
+
+                        <Route path='/students/:semester' element={<Students />}></Route>
+                        <Route path='/projects/:semester/:id' element={<Projects />}></Route>
+                        <Route path='/project/:semester/:projectId' element={<ProjectDetails />}></Route>
+                        <Route path='/' element={<Semester />}></Route>
+                        <Route path='/events/eventcreate' element={<EventCreation />}></Route>
+                        <Route path='/events/:eventId' element={<EventDetails />}></Route>
+                        <Route path='/profile' element={<FacultyProfilePage avatar={avatar} />}></Route>
+                        <Route path='/events' element={<Events />}></Route>
+                    </Route>
                 </Routes>
             </div>
         </div>
