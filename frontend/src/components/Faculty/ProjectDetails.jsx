@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
@@ -9,7 +9,6 @@ import image from '../../assets/add_project_pattern.png';
 const ProjectDetails = () => {
 
     const { projectId, semester } = useParams();
-    console.log(projectId)
     const [projectData, setProjectData] = useState({
         title: "",
         tools: "",
@@ -23,7 +22,8 @@ const ProjectDetails = () => {
     });
     const [selectedSourcecode, setSelectedSourcecode] = useState(null);
     const [selectedSourceCodeContent, setSelectedSourceCodeContent] = useState("");
-
+    const [suggestion, setSuggestion] = useState('');
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -64,7 +64,7 @@ const ProjectDetails = () => {
     const handleSourceCodeClick = async (index) => {
         try {
 
-            const url = projectData.sourcecode[index].fileUrl; 
+            const url = projectData.sourcecode[index].fileUrl;
             // console.log(url);
 
             const response = await axios.get(url, {
@@ -98,9 +98,27 @@ const ProjectDetails = () => {
         document.body.removeChild(link);
     };
 
+    const suggestionChangeHandler = (e) => {
+        setSuggestion(e.target.value);
+    }
+
+    const submitBtnClickHandler = async(e) => {
+
+        e.preventDefault();
+        const response = await axios.post(`http://localhost:5000/project/${projectId}/addSuggestion`, {suggestion}, {
+            withCredentials: true,
+            headers: {
+                'Content-Type' : 'application/x-www-form-urlencoded'
+            }
+        });
+        
+        if(response.status === 200) {
+            navigate(`/admindashboard/projects/${semester}/${projectData.owner}`)
+        }
+    }
 
     return (
-        <div className='flex flex-col items-center gap-8' style={{ backgroundImage: `url(${image})` }}>
+        <div className='flex flex-col items-center gap-8 max-h-max' style={{ backgroundImage: `url(${image})` }}>
             <div className='w-11/12 lg:w-8/12'>
                 <div className='mt-14 text-white'>
                     <Link to={`/admindashboard/projects/${semester}/${projectData.owner}`} className='ml-5 lg:ml-0 text-lg p-2 rounded-md bg-[#9290C3] hover:bg-[#535C91] duration-300 text-black font-semibold'><ArrowBackIcon />Back</Link>
@@ -187,7 +205,17 @@ const ProjectDetails = () => {
 
                             </div>
                         </div>
+                        <label htmlFor="suggestions" className='text-xl'>
+                            Suggestions
+                        </label>
+                        <textarea name="description" id="description" className='rounded-md resize-none mt-2 min-h-[7rem] focus:outline-none p-2 text-black text-sm mb-10' cols="20" rows="5" placeholder='Tell us about your project' onChange={suggestionChangeHandler}></textarea>
+
+                        <div className='flex justify-center'>
+                            <button to={`/admindashboard/projects/${semester}/${projectData.owner}`} className='w-full sm:w-1/4 ml-5 mb-10 lg:ml-0 text-lg p-2 rounded-md bg-[#9290C3] hover:bg-[#535C91] duration-300 text-black font-semibold' 
+                            onClick={submitBtnClickHandler}>Send</button>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

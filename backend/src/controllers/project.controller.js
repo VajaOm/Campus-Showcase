@@ -374,4 +374,27 @@ const getAllProject = asyncHandler(async (req, res) => {
     )
 })
 
-export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt, updateProjectData, getAllProject };
+const addSuggetion = asyncHandler(async (req,res) => {
+    console.log('add suggestion route')
+   try {
+     const {suggestion} = req.body;
+     const projectId = req.params.projectId;
+ 
+     const project = await Project.findById(projectId);
+ 
+     if(!project) {
+         throw new ApiError(401, 'Project not found');
+     }
+ 
+     project.suggestion = suggestion;
+     await project.save();
+ 
+     res.status(200).json(
+         new ApiResponse(200, 'suggestion added successfully', project)
+     );
+   } catch (error) {
+    console.log(error)
+   }
+})
+
+export { addProject, getMyProjects, deleteProject, getprojectdata, deleteImage, deleteSourcecode, deleteVideo, deletePpt, updateProjectData, getAllProject, addSuggetion };

@@ -22,7 +22,7 @@ const projectSchema = mongoose.Schema({
         required: true,
         trim: true
     },
-    images : [
+    images: [
         {
             fileName: {
                 type: String,
@@ -34,17 +34,17 @@ const projectSchema = mongoose.Schema({
             }
         }
     ],
-    video: 
-        {
-            fileName: {
-                type: String,
-                required: true
-            },
-            fileUrl: {
-                type: String,
-                required: true
-            }
+    video:
+    {
+        fileName: {
+            type: String,
+            required: true
+        },
+        fileUrl: {
+            type: String,
+            required: true
         }
+    }
     ,
     sourceCode: [
         {
@@ -55,27 +55,30 @@ const projectSchema = mongoose.Schema({
             fileUrl: {
                 type: String,
                 required: true
-             }
-        }
-    ],
-    ppt: 
-        {
-            fileName: {
-                type: String,
-                required: true
-            },
-            fileUrl: {
-                type: String,
-                required: true
             }
         }
+    ],
+    ppt:
+    {
+        fileName: {
+            type: String,
+            required: true
+        },
+        fileUrl: {
+            type: String,
+            required: true
+        }
+    }
     ,
     owner:
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Student"
-        }
-    
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+    },
+    suggestion: {
+        type: String
+    }
+
 }, { timestamps: true })
 
 
