@@ -13,7 +13,8 @@ import {
     verifyToken,
     passwordResetEmail,
     verifyPasswordResetToken,
-    passwordeUpdate
+    passwordeUpdate,
+    getCookie
 } from '../controllers/user.controller.js';
 
 import { veriJwt } from '../middlewares/auth.middleware.js';
@@ -48,4 +49,5 @@ router.route("/passwordResetEmail").post(passwordResetEmail);
 router.route("/verifyPasswordResetToken/:role/:id/:token").get(verifyPasswordResetToken);
 router.route("/passwordeUpdate/:role/:id").post(passwordeUpdate);
 
+router.route("/getCookie").get(getCookie);
 export default router;

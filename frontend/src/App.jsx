@@ -24,6 +24,8 @@ function App() {
     <>
     
       <Routes>
+      <Route path='/registration' element={<Registration />} />
+        <Route path='/' element={<Login />} />
         <Route element={<PrivateRoute />}>
 
         <Route path='/studentProfile' element={<StudentProfilePage /> } />
@@ -32,8 +34,7 @@ function App() {
         <Route path='/admindashboard/*' element={<AdminDashboard />} />
 
         </Route>
-        <Route path='/registration' element={<Registration />} />
-        <Route path='/' element={<Login />} />
+        
         <Route path='/emailVerification' element={<EmailVerification />} />
         <Route path='/emailVerification/:role/:id/:token' element={<EmailVerification />} />
         <Route path='/forgotPassword' element={<ForgotPassword />}/>

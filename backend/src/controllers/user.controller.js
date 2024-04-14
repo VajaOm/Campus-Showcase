@@ -595,6 +595,18 @@ const passwordeUpdate = asyncHandler(async (req, res) => {
    }
 })
 
+const getCookie = asyncHandler(async (req, res) => {
+    const accessToken = req.cookies.accessToken;
+
+    if(!accessToken) {
+        throw new ApiError(403, 'Token not found')
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, 'Accesstoken found')
+    )
+})
+
 
 export {
     registerUser,
@@ -610,5 +622,6 @@ export {
     verifyToken,
     passwordResetEmail,
     verifyPasswordResetToken,
-    passwordeUpdate
+    passwordeUpdate,
+    getCookie
 }
