@@ -4,6 +4,8 @@ import { Event } from '../models/event.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Student } from '../models/student.model.js'
+import { Faculty } from '../models/faculty.model.js';
+import mongoose from 'mongoose';
 
 const createEvent = asyncHandler(async (req, res) => {
     console.log("event creation page")
@@ -85,27 +87,91 @@ const getEventDetails = asyncHandler(async (req, res) => {
 })
 
 const deleteEvent = asyncHandler(async (req, res) => {
-   try {
-     console.log("delete page")
-     const { eventId } = req.params;
- 
-     if (!eventId) {
-         throw new ApiError(402, "Event id not found");
-     }
- 
-     const result = await Event.deleteOne({ _id: eventId });
- 
-     if (!result) {
-         throw new ApiError(404, "Event not found")
-     }
- 
-     res.status(200).json(
-         new ApiResponse(200, "Event deleted successfully.", result)
-     )
-   } catch (error) {
-    console.log(error)
-   }
+    try {
+        console.log("delete page")
+        const { eventId } = req.params;
+
+        if (!eventId) {
+            throw new ApiError(402, "Event id not found");
+        }
+
+        const result = await Event.deleteOne({ _id: eventId });
+
+        if (!result) {
+            throw new ApiError(404, "Event not found")
+        }
+
+        res.status(200).json(
+            new ApiResponse(200, "Event deleted successfully.", result)
+        )
+    } catch (error) {
+        console.log(error)
+    }
 })
 
+const addParticipate = asyncHandler(async (req, res) => {
 
-export { createEvent, getEvents, getEventDetails, deleteEvent }
+    const { _id, role } = req.user;
+    const { eventId } = req.params;
+
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+        throw new ApiError(401, 'Event is not found')
+    }
+
+    event.participants.push(_id);
+    await event.save();
+
+    let user;
+    if (role === 'Student') {
+        user = await Student.findById(_id);
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        user.participatedEvents.push(eventId);
+        await user.save();
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, 'Participate added successfully', event)
+    )
+})
+
+const getParticipants = asyncHandler(async (req, res) => {
+
+    const { eventId } = req.params;
+
+    const events = await Event.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(eventId) } 
+        },
+        {
+            $lookup: {
+                from: 'students',
+                localField: 'participants',
+                foreignField: '_id',
+                as: 'participantsDetail'
+            }
+        }
+    ]);
+
+    if (events.length === 0) {
+        return res.status(404).json(
+            new ApiResponse(404, 'No participants', {})
+        );
+    }
+
+    const participantDetails = events[0].participantsDetail;
+
+    console.log(participantDetails);
+
+    res.status(200).json(
+        new ApiResponse(200, 'participants found', participantDetails)
+    );
+});
+
+
+
+export { createEvent, getEvents, getEventDetails, deleteEvent, addParticipate, getParticipants }

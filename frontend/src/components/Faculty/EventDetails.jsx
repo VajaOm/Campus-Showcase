@@ -9,6 +9,7 @@ export default function EventDetails() {
     const [event, setEvent] = useState(null);
     const [isImg, setIsImg] = useState(false);
     const location = useLocation();
+    const [participants, setParticipant] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,6 +30,15 @@ export default function EventDetails() {
                 const formattedEndDate = `${endDate.getDate()}/${endDate.getMonth() + 1}/${endDate.getFullYear()}`;
 
                 setEvent({ ...eventData, startDate: formattedStartDate, endDate: formattedEndDate });
+
+                const response2 = await axios.get(`http://localhost:5000/event/${eventId}/getParticipants`, { withCredentials: true });
+
+                setParticipant(response2.data.data);
+                console.log(participants)
+
+
+
+
             } catch (error) {
                 console.log('Error in fetching the events:', error);
             }
@@ -42,7 +52,7 @@ export default function EventDetails() {
     return (
         <div className='flex justify-center mb-10' style={{ backgroundImage: `url(${image})` }}>
             <div className='w-11/12 lg:w-8/12 flex flex-col gap-5 text-justify '>
-            <div className='mt-8 text-white'>
+                <div className='mt-8 text-white'>
                     <Link to={backLink} className=' lg:ml-0 text-lg p-2 hover:bg-[#1B1A55] rounded-md duration-300'><ArrowBackIcon />Back</Link>
                 </div>
                 <div className='flex flex-col items-center gap-4'>
@@ -76,6 +86,36 @@ export default function EventDetails() {
                             <li>{event?.judgingCriteria}</li>
                         </ul>
                     </div>
+                </div>
+                <div>
+                    <h1 className='font-bold text-xl mt-5'>Participants :</h1>
+                    {
+                        participants.length > 0 ?
+                            <>
+                                <table className='w-full text-center mt-10'>
+                                    <thead className='border-b-2'>
+                                        <tr className='lg:text-xl'>
+                                            <th>No.</th>
+                                            <th>Student</th>
+                                            <th>Year</th>
+                                            <th>Semester</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {participants.map((participant, index) => (
+                                            <tr className='hover:bg-[#535C91] duration-300 lg:text-lg' key={index}>
+                                                <td className='py-3'>{index + 1}</td>
+                                                <td className='py-3'>{participant.fullName}</td>
+                                                <td className='py-3'>{participant.year}</td>
+                                                <td className='py-3'>{participant.semester}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </>
+                            :
+                            'No participant'
+                    }
                 </div>
             </div>
         </div>

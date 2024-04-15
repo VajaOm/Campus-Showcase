@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 import topPattern from '../assets/add_project_pattern.png';
+import CheckIcon from '@mui/icons-material/Check';
 
 export default function EventsPage() {
-  
+
     const [events, setEvents] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [participatedEvents, setParticipatedEvents] = useState([]);
+    const [isParticipant, setIsParticipant] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/event/getevents', { withCredentials: true });
                 setEvents(response.data.data);
+
+                const response2 = await axios.get('http://localhost:5000/user/participatedEvents', { withCredentials: true });
+
+                setParticipatedEvents(response2.data.data);
+
             } catch (error) {
                 console.log('Error in fetching the events:', error);
             }
@@ -32,26 +38,39 @@ export default function EventsPage() {
         return `${day}/${month}/${year}`;
     };
 
-    const deleteBtnHandler = async (eventId) => {
-        try {
-            const response = await axios.get(`http://localhost:5000/event/eventdelete/${eventId}`, { withCredentials: true });
-            console.log(response);
-            setEvents(events.filter(event => event._id !== eventId));
-        } catch (error) {
-            console.log("Error in deleting the event", error);
-        }
-    };
-
-
     const filteredEvents = events.filter(event =>
         event.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const participateBtnClickHandler = async (id) => {
+
+        try {
+
+            const response = await axios.patch(`http://localhost:5000/event/${id}/addParticipate`, {}, {
+                withCredentials: true
+            });
+
+            const response2 = await axios.get('http://localhost:5000/user/participatedEvents', { withCredentials: true });
+
+            setParticipatedEvents(response2.data.data);
+
+            console.log(response)
+
+            if (response.status === 200) {
+                setIsParticipant(true)
+            }
+
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <div>
             <div className='mt-10 min-h-screen' style={{ backgroundImage: `url(${topPattern})` }} >
-              <h1 className='text-xl lg:text-4xl'>Events</h1>
-                
+                <h1 className='text-xl lg:text-4xl'>Events</h1>
+
                 <div className='mt-10 flex justify-center'>
                     <input
                         type="text"
@@ -79,7 +98,13 @@ export default function EventsPage() {
                                 </div>
                             </div>
                             <div className='w-1/2 flex justify-end items-center ml-auto gap-2 sm:gap-10'>
-                                <button className='bg-[#9290C3] hover:bg-[#535C91] duration-300 text-sm  sm:text-md rounded-md text-black font-semibold p-2' onClick={() => deleteBtnHandler(event._id)}><EventSeatIcon /> Participate</button>
+                                {
+                                    participatedEvents.includes(event._id) && isParticipant ?
+                                        <button className='bg-[#] border-2 border-dotted hover:bg-[#535C91] duration-300 text-sm  sm:text-md rounded-md text-white font-semibold p-1 py-2' onClick={() => participateBtnClickHandler(event._id)}><CheckIcon /> Participated</button>
+                                        :
+                                        <button className='bg-[#9290C3] hover:bg-[#535C91] duration-300 text-sm  sm:text-md rounded-md text-black font-semibold p-2' onClick={() => participateBtnClickHandler(event._id)}><EventSeatIcon /> Participate</button>
+                                }
+
                                 <Link className='p-2 px-3 md:px-4 rounded-md bg-[#1B1A55] border-2 text-white hover:bg-[#535C91] text-md md:text-lg lg:text-md duration-300' to={`/dashboard/events/${event._id}`}>View</Link>
                             </div>
                         </div>
@@ -87,5 +112,5 @@ export default function EventsPage() {
                 </div>
             </div>
         </div>
-  )
+    )
 }

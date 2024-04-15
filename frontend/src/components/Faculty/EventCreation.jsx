@@ -41,7 +41,7 @@ export default function EventCreation() {
                 withCredentials: true
             });
 
-            if(response.status === 200) {
+            if (response.status === 200) {
                 setLoader(false);
                 navigate('/admindashboard');
             }
@@ -75,7 +75,7 @@ export default function EventCreation() {
 
 
     return (
-        <div className=" container mx-auto relative" style={ loader ? {} : { backgroundImage: `url(${image})` }}>
+        <div className=" container mx-auto relative" style={loader ? {} : { backgroundImage: `url(${image})` }}>
 
             <div className={`w-full flex justify-center items-center absolute  translate-y-1/6 translate-x-1/6 h-screen ${loader ? 'block' : 'hidden'}`} >
                 <Triangle
@@ -89,13 +89,13 @@ export default function EventCreation() {
                 />
             </div>
 
-            <form action="" className={`${loader ? 'blur-lg' : '' }`}>
+            <form action="" onSubmit={handleSubmit} className={`${loader ? 'blur-lg' : ''}`}>
                 <div className='mt-8 lg:ml-12 text-white'>
                     <Link to={`/admindashboard/events`} className='ml-5 lg:ml-0 text-lg p-2 hover:bg-[#1B1A55] rounded-md duration-300'><ArrowBackIcon />Back</Link>
                 </div>
                 <h1 className="text-xl lg:text-3xl text-center text-white lg:mb-8 mt-5">Create Event</h1>
                 <div className='flex flex-col items-center'>
-                    <form onSubmit={handleSubmit} className="md:w-11/12 lg:w-7/12 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                    <div className="md:w-11/12 lg:w-7/12 shadow-md rounded px-8 pt-6 pb-8 mb-4">
                         <div className="mb-4">
                             <label className="block text-white md:text-xl text-md mb-2" htmlFor="eventName">
                                 Event Name
@@ -198,7 +198,7 @@ export default function EventCreation() {
                             </button>
                         </div>
 
-                    </form>
+                    </div>
                 </div>
             </form>
         </div>

@@ -14,7 +14,8 @@ import {
     passwordResetEmail,
     verifyPasswordResetToken,
     passwordeUpdate,
-    getCookie
+    getCookie,
+    participatedEvents
 } from '../controllers/user.controller.js';
 
 import { veriJwt } from '../middlewares/auth.middleware.js';
@@ -50,4 +51,5 @@ router.route("/verifyPasswordResetToken/:role/:id/:token").get(verifyPasswordRes
 router.route("/passwordeUpdate/:role/:id").post(passwordeUpdate);
 
 router.route("/getCookie").get(getCookie);
+router.route('/participatedEvents').get(veriJwt, participatedEvents);
 export default router;

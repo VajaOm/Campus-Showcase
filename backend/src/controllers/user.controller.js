@@ -563,42 +563,42 @@ const verifyPasswordResetToken = asyncHandler(async (req, res) => {
 })
 
 const passwordeUpdate = asyncHandler(async (req, res) => {
-   try {
-     console.log*("password update ")
-     const { newPassword, confirmPassword } = req.body;
-     const { id, role } = req.params;
+    try {
+        console.log * ("password update ")
+        const { newPassword, confirmPassword } = req.body;
+        const { id, role } = req.params;
 
-     if (newPassword !== confirmPassword) {
-         throw new ApiError(401, 'Password not matched');
-     }
- 
-     let user;
-     if (role === 'Student') {
-         user = await Student.findOne({ _id:id });
-     }
-     else {
-        user = await Faculty.findOne({ _id:id });
-     }
- 
-     if (!user) {
-         throw new ApiError(401, 'User not exist.');
-     }
+        if (newPassword !== confirmPassword) {
+            throw new ApiError(401, 'Password not matched');
+        }
 
-    user.password = newPassword;
-    await user.save();
- 
-     res.status(200).json(
-         new ApiResponse(200, 'password reset Successfully', user)
-     )
-   } catch (error) {
-    console.log(error)
-   }
+        let user;
+        if (role === 'Student') {
+            user = await Student.findOne({ _id: id });
+        }
+        else {
+            user = await Faculty.findOne({ _id: id });
+        }
+
+        if (!user) {
+            throw new ApiError(401, 'User not exist.');
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json(
+            new ApiResponse(200, 'password reset Successfully', user)
+        )
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 const getCookie = asyncHandler(async (req, res) => {
     const accessToken = req.cookies.accessToken;
 
-    if(!accessToken) {
+    if (!accessToken) {
         throw new ApiError(403, 'Token not found')
     }
 
@@ -607,6 +607,21 @@ const getCookie = asyncHandler(async (req, res) => {
     )
 })
 
+const participatedEvents = asyncHandler(async (req, res) => {
+    const { _id, role } = req.user;
+
+    let user;
+    if (role === 'Student') {
+        user = await Student.findById(_id);
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+    }
+
+    res.status(200).json(
+        new ApiResponse(200,'Participated Events found', user.participatedEvents)
+    )
+})
 
 export {
     registerUser,
@@ -623,5 +638,7 @@ export {
     passwordResetEmail,
     verifyPasswordResetToken,
     passwordeUpdate,
-    getCookie
+    getCookie,
+    participatedEvents,
+    
 }
