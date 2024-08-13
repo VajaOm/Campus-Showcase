@@ -43,26 +43,44 @@ export default function EventsPage() {
     );
 
     const participateBtnClickHandler = async (id) => {
+        if (isParticipant) {
+            setIsParticipant(false);
 
-        try {
+            try {
+                
+                const response = await axios.patch(`http://localhost:5000/event/${id}/removeParticipate`, {}, {
+                    withCredentials: true
+                });
 
-            const response = await axios.patch(`http://localhost:5000/event/${id}/addParticipate`, {}, {
-                withCredentials: true
-            });
+                console.log(response.data.data)
 
-            const response2 = await axios.get('http://localhost:5000/user/participatedEvents', { withCredentials: true });
-
-            setParticipatedEvents(response2.data.data);
-
-            console.log(response)
-
-            if (response.status === 200) {
-                setIsParticipant(true)
+            } catch (error) {
+                console.log(error);
             }
 
+        }
 
-        } catch (error) {
-            console.log(error)
+        else{
+            try {
+    
+                const response = await axios.patch(`http://localhost:5000/event/${id}/addParticipate`, {}, {
+                    withCredentials: true
+                });
+    
+                const response2 = await axios.get('http://localhost:5000/user/participatedEvents', { withCredentials: true });
+    
+                setParticipatedEvents(response2.data.data);
+    
+                console.log(response)
+    
+                if (response.status === 200) {
+                    setIsParticipant(true)
+                }
+    
+    
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 

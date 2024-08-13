@@ -110,7 +110,7 @@ const deleteEvent = asyncHandler(async (req, res) => {
 })
 
 const addParticipate = asyncHandler(async (req, res) => {
-
+console.log('add participant')
     const { _id, role } = req.user;
     const { eventId } = req.params;
 
@@ -145,7 +145,7 @@ const getParticipants = asyncHandler(async (req, res) => {
 
     const events = await Event.aggregate([
         {
-            $match: { _id: new mongoose.Types.ObjectId(eventId) } 
+            $match: { _id: new mongoose.Types.ObjectId(eventId) }
         },
         {
             $lookup: {
@@ -172,6 +172,51 @@ const getParticipants = asyncHandler(async (req, res) => {
     );
 });
 
+const removeParticipate = asyncHandler(async (req, res) => {
+    console.log("removeParticipate")
+    try {
+        const { _id, role } = req.user;
+        const { eventId } = req.params;
+
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            throw new ApiError(401, 'Event is not found')
+        }
+
+        let index = event.participants?.indexOf(_id);
+
+        while (index !== -1) {
+            event.participants?.splice(index, 1);
+            index = event.participants?.indexOf(_id);
+        }
+
+        await event.save();
+
+        let user;
+        if (role === 'Student') {
+            user = await Student.findById(_id);
+            if (!user) {
+                throw new ApiError(404, 'User not found');
+            }
+
+            let index = user.participatedEvents?.indexOf(eventId);
+
+            while (index !== -1) {
+                user.participatedEvents?.splice(index, 1);
+                index = user.participatedEvents?.indexOf(eventId);
+            }
+
+            await user.save();
+        }
+
+        res.status(200).json(
+            new ApiResponse(200, 'Participant Removed successfully', event)
+        )
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
-export { createEvent, getEvents, getEventDetails, deleteEvent, addParticipate, getParticipants }
+export { createEvent, getEvents, getEventDetails, deleteEvent, addParticipate, getParticipants, removeParticipate }

@@ -33,7 +33,7 @@ const Explore = () => {
         navigate(`/dashboard/explore/projectdetails/${projectId}`);
     };
 
-    // Filter projects based on search input
+   
     const filteredProjects = projects.filter(project => {
         const { title, category, ownerName } = project;
         const searchLowerCase = searchField.toLowerCase();
@@ -45,7 +45,7 @@ const Explore = () => {
     });
 
     return (
-        <div className='flex justify-center lg:justify-start' style={{ backgroundImage: `url(${topPattern})` }}>
+        <div className='h-full flex justify-center lg:justify-start' style={{ backgroundImage: `url(${topPattern})` }}>
             <div className='w-11/12 flex flex-col items-start'>
                 <h1 className='text-2xl md:text-3xl mt-14 mb-8'>Explore</h1>
 

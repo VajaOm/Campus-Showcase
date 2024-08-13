@@ -13,13 +13,17 @@ export default function EmailVerification() {
 
   useEffect(() => {
     const fetch = async () => {
-      const response = await axios.get(`http://localhost:5000/user/verify/${role}/${id}/${token}`, {
-        withCredentials: true
-      });
 
-      console.log(response);
-      if(response.status === 200) {
-        navigate('/');
+      if (id && role) {
+
+        const response = await axios.get(`http://localhost:5000/user/verify/${role}/${id}/${token}`, {
+          withCredentials: true
+        });
+
+        console.log(response);
+        if (response.status === 200) {
+          navigate('/');
+        }
       }
     }
 

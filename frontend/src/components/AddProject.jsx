@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import UploadFields from './UploadFields';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -6,23 +6,25 @@ import topPattern from '../assets/add_project_pattern.png';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Triangle } from 'react-loader-spinner';
+import  useAddStore   from '../store/addProject-store'
 
 function AddProject({ showMenu, setProgress }) {
     const [dragActive, setDragActive] = useState(false);
     const [errors, setErrors] = useState({});
-    const [projectData, setProjectData] = useState({
-        title: "",
-        description: "",
-        tools: "",
-        category: ""
-    })
+    // const [projectData, setProjectData] = useState({
+    //     title: "",
+    //     description: "",
+    //     tools: "",
+    //     category: ""
+    // })
+    const {projectData, setProjectData, fileData, setFileData} = useAddStore();
 
-    const [fileData, setFileData] = useState({
-        images: [],
-        video: [],
-        sourceCode: [],
-        ppt: []
-    });
+    // const [fileData, setFileData] = useState({
+    //     images: [],
+    //     video: [],
+    //     sourceCode: [],
+    //     ppt: []
+    // });
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
@@ -70,11 +72,17 @@ function AddProject({ showMenu, setProgress }) {
     const onChangeHandler = (e) => {
         const { name, value } = e.target;
 
-        setProjectData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }))
+        setProjectData(
+            {[name]: value}
+        )
     }
+
+    useEffect(() => {
+        console.log('images : ',fileData.images)
+        console.log('video : ',fileData.video)
+        console.log('sc : ',fileData.sourceCode)
+        console.log('ppt : ',fileData.ppt)
+    }, [fileData]);
 
     async function readAsText(file) {
         return new Promise((resolve, reject) => {
@@ -226,13 +234,13 @@ function AddProject({ showMenu, setProgress }) {
                     <p className="text-slate-100 text-xl mt-6 lg:mt-4">Upload your project</p>
                     <br />
 
-                    <UploadFields label="images" onFileChange={(files) => setFileData({ ...fileData, images: files })} />
+                    <UploadFields label="images" onFileChange={(files) => setFileData({images: files })} />
                     <br />
-                    <UploadFields label="sourceCode" onFileChange={(files) => setFileData({ ...fileData, sourceCode: files })} />
+                    <UploadFields label="sourceCode" onFileChange={(files) => setFileData({sourceCode: files })} />
                     <br />
-                    <UploadFields label="video" onFileChange={(files) => setFileData({ ...fileData, video: files })} />
+                    <UploadFields label="video" onFileChange={(files) => setFileData({video: files })} />
                     <br />
-                    <UploadFields label="ppt" onFileChange={(files) => setFileData({ ...fileData, ppt: files })} />
+                    <UploadFields label="ppt" onFileChange={(files) => setFileData({ppt: files })} />
                     <div className='flex justify-center mt-10'>
 
                         <button className='rounded-md p-2 hover:bg-[#535C91] bg-[#9290C3] text-black font-bold mb-10 w-full md:w-1/2 lg:w-2/12 transform duration-200' >Add Project</button>

@@ -234,7 +234,7 @@ const FacultyProfilePage = () => {
                                 <input
                                     type="text"
                                     id={"username"}
-                                    className=' bg-[#070F2B] border-b-2 w-full focus:outline-none mt-3 '
+                                    className=' bg-[#070F2B] border-b-2 w-full focus:outline-none mt-3 text-white'
                                     name="username"
                                     value={userData.username || ''}
                                     onChange={(e) => onChangeHandler("username", e.target.value)}
