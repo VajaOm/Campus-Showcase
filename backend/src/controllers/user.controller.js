@@ -130,7 +130,7 @@ const loginUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: true,
         path: '/',
-        sameSite: 'None'
+        sameSite: 'Strict'
     };
 
     if (role === "Faculty" && user.firstTime) {
@@ -278,7 +278,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const options = {
         httponly: true,
-        secure: true
+        secure: true,
+        sameSite: 'Strict'
     };
 
     return res
